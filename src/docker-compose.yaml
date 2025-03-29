@@ -1,0 +1,24 @@
+version: '3.8'
+
+name: dndtest
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: pg
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=pgvector
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/volumes/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  tika:
+    image: tika-tesseract
+    container_name: tika-tesseract
+    ports:
+      - "9998:9998"
+    restart: unless-stopped

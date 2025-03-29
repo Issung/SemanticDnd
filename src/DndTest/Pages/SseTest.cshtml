@@ -1,0 +1,25 @@
+﻿@page
+@model SseTestModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">SSE Test</h1>
+</div>
+
+<pre id="sseData"></pre>
+
+<script type="text/javascript">
+    const eventSource = new EventSource('/api/ssetest');
+    eventSource.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        if (data.message == "---DONE---") {
+            eventSource.close();
+        }
+        else {
+            document.getElementById('sseData').innerText += data.message;
+        }
+    };
+</script>

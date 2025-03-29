@@ -1,0 +1,21 @@
+﻿@page
+@model EmbeddingsModel
+@{
+    ViewData["Title"] = "Embeddings";
+}
+
+<div class="text-center">
+    <h1 class="display-4">SSE Test</h1>
+
+    <form method="get">
+        <div>
+            <label for="file">Text:</label>
+            <input type="text" name="text" value="@Model.Text"/>
+        </div>
+        <button type="submit">Generate Embeddings</button>
+    </form>
+
+    <pre id="embedding">
+        @(Model.Floats == null ? "" : string.Join(", ", Model.Floats))
+    </pre>
+</div>

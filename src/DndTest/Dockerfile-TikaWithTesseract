@@ -1,0 +1,7 @@
+FROM apache/tika AS base
+
+USER root
+
+RUN apt-get update
+RUN apt-get install -y tesseract-ocr-eng
+
