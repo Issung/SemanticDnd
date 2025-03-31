@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NpgsqlTypes;
 using Pgvector;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,5 +24,5 @@ public class EmbeddingCache
     public string Model { get; set; } = default!;
 
     [Column(TypeName = "vector(768)")]
-    public Vector Floats { get; set; } = default!;
+    public Vector Vector { get; set; } = default!;
 }

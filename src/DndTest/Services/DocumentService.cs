@@ -52,7 +52,7 @@ public class DocumentService(
             {
                 DocumentId = documentId,
                 Text = extractedText.Text,
-                EmbeddingVector = new(embeddings.Floats),
+                EmbeddingVector = embeddings.Vector,
                 PageNumber = extractedText.PageNumber,
             };
 
@@ -71,7 +71,7 @@ public class DocumentService(
     {
         var embeddingsVector = await embeddingsService.GetEmbeddingForText(searchQuery);
         //var floats = JsonSerializer.Serialize(embeddingsVector.Floats);
-        var embedding = new Vector(embeddingsVector.Floats);
+        var embedding = embeddingsVector.Vector;
 
         // Normalize weights
         var totalWeight = keywordWeight + vectorWeight;

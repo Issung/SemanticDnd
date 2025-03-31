@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DndTest.Pages;
 
 public class EmbeddingsModel(
-    EmbeddingsService embeddingsService    
+    EmbeddingsService embeddingsService
 ) : PageModel
 {
     [BindProperty(SupportsGet = true)]
     public string? Text { get; set; }
 
-    public IReadOnlyList<float>? Floats { get; set; }
+    public ReadOnlyMemory<float>? Floats { get; set; }
 
     public async Task OnGet()
     {
@@ -19,7 +19,7 @@ public class EmbeddingsModel(
         {
             var embedding = await embeddingsService.GetEmbeddingForText(Text);
         
-            Floats = embedding.Floats;
+            Floats = embedding.Vector.Memory;
         }
     }
 }

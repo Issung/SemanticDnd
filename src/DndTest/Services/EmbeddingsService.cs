@@ -3,6 +3,7 @@ using DndTest.Data;
 using DndTest.Data.Model;
 using DndTest.Helpers.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
 
 namespace DndTest.Services;
 
@@ -29,7 +30,7 @@ public class EmbeddingsService(
             Text = text,
             TextHash = hash,
             Model = settings.EmbeddingsModel,
-            Floats = embeddingsResponse.Embeddings[0],
+            Vector = new Vector(embeddingsResponse.Embeddings[0]),
         };
 
         dbContext.EmbeddingsCache.Add(embedding);
