@@ -1,12 +1,10 @@
 using DndTest.Data;
 using DndTest.Data.Model;
 using DndTest.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
 
 namespace DndTest.Pages;
 

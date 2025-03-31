@@ -51,7 +51,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("Documents", (string)null);
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.EmbeddingCache", b =>
@@ -61,10 +61,6 @@ namespace DndTest.Data.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.PrimitiveCollection<float[]>("Floats")
-                        .IsRequired()
-                        .HasColumnType("real[]");
 
                     b.Property<string>("Model")
                         .IsRequired()
@@ -78,11 +74,15 @@ namespace DndTest.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Vector>("Vector")
+                        .IsRequired()
+                        .HasColumnType("vector(768)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TextHash", "Model");
 
-                    b.ToTable("EmbeddingCache", (string)null);
+                    b.ToTable("EmbeddingCache");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.ExtractedText", b =>
@@ -107,7 +107,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("ExtractedText", (string)null);
+                    b.ToTable("ExtractedText");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.File", b =>
@@ -135,7 +135,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("Hash");
 
-                    b.ToTable("Files", (string)null);
+                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.SearchChunk", b =>
@@ -180,7 +180,7 @@ namespace DndTest.Data.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("TextVector"), "GIN");
 
-                    b.ToTable("SearchChunks", (string)null);
+                    b.ToTable("SearchChunks");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.TikaCache", b =>
@@ -194,7 +194,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasKey("FileHash");
 
-                    b.ToTable("TikaCache", (string)null);
+                    b.ToTable("TikaCache");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

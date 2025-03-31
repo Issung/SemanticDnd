@@ -1,5 +1,4 @@
 ﻿using DndTest.Config;
-using DndTest.Data.Migrations;
 using DndTest.Data.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -29,16 +28,6 @@ public class DndDbContext(
             {
                 searchChunk.Property(d => d.TextVector).HasComputedColumnSql("to_tsvector('english', \"SearchChunks\".\"Text\")", stored: true);
                 searchChunk.HasIndex(s => s.TextVector).HasMethod("GIN");
-
-                searchChunk
-                    .Property(d => d.EmbeddingVector)
-                    .HasColumnType($"vector({settings.EmbeddingsSize})")
-                    //.HasConversion(
-                    //    v => string.Join(',', v),
-                    //    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    //          .Select(float.Parse).ToArray()
-                    //)
-                ;
 
                 searchChunk.HasIndex(e => e.EmbeddingVector)
                     .HasMethod("ivfflat")

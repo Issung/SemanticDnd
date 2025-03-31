@@ -27,6 +27,8 @@ public class Program
 
         builder.Services.AddSingleton<DndSettings>();
 
+        builder.Logging.SetMinimumLevel(LogLevel.Trace);
+
         builder.Services.AddHangfire(config =>
         {
             config.UsePostgreSqlStorage(c => c.UseNpgsqlConnection(connectionString));

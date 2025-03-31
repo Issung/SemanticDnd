@@ -7,14 +7,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
+using Pgvector;
 
 #nullable disable
 
 namespace DndTest.Data.Migrations
 {
     [DbContext(typeof(DndDbContext))]
-    [Migration("20250330040907_S3FilesTable")]
-    partial class S3FilesTable
+    [Migration("20250331082325_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,10 +65,6 @@ namespace DndTest.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.PrimitiveCollection<float[]>("Floats")
-                        .IsRequired()
-                        .HasColumnType("real[]");
-
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("text");
@@ -80,11 +77,40 @@ namespace DndTest.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Vector>("Vector")
+                        .IsRequired()
+                        .HasColumnType("vector(768)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TextHash", "Model");
 
                     b.ToTable("EmbeddingCache");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.ExtractedText", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("PageNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("ExtractedText");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.File", b =>
@@ -126,12 +152,12 @@ namespace DndTest.Data.Migrations
                     b.Property<int>("DocumentId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("EmbeddingId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("EmbeddingVector")
+                    b.Property<Vector>("EmbeddingVector")
                         .IsRequired()
                         .HasColumnType("vector(768)");
+
+                    b.Property<int?>("PageNumber")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -146,8 +172,6 @@ namespace DndTest.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentId");
-
-                    b.HasIndex("EmbeddingId");
 
                     b.HasIndex("EmbeddingVector")
                         .HasAnnotation("Npgsql:StorageParameter:lists", 100);
@@ -387,6 +411,17 @@ namespace DndTest.Data.Migrations
                     b.Navigation("File");
                 });
 
+            modelBuilder.Entity("DndTest.Data.Model.ExtractedText", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.File", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("File");
+                });
+
             modelBuilder.Entity("DndTest.Data.Model.SearchChunk", b =>
                 {
                     b.HasOne("DndTest.Data.Model.Document", "Document")
@@ -395,15 +430,7 @@ namespace DndTest.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DndTest.Data.Model.EmbeddingCache", "Embedding")
-                        .WithMany()
-                        .HasForeignKey("EmbeddingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Document");
-
-                    b.Navigation("Embedding");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
