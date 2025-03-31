@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NpgsqlTypes;
+using Pgvector;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DndTest.Data.Model;
@@ -6,10 +8,10 @@ namespace DndTest.Data.Model;
 /// <summary>
 /// This table is not searched on, just here to cache generated embedding floats.
 /// </summary>
-[Table("CachedEmbeddings")]
+[Table("EmbeddingCache")]
 [PrimaryKey(nameof(Id))]
-[Index(nameof(TextHash))]
-public class CachedEmbedding
+[Index(nameof(TextHash), nameof(Model))]
+public class EmbeddingCache
 {
     public int Id { get; set; }
 
@@ -20,5 +22,8 @@ public class CachedEmbedding
     /// </summary>
     public string TextHash { get; set; } = default!;
 
-    public IReadOnlyList<float> Floats { get; set; } = default!;
+    public string Model { get; set; } = default!;
+
+    [Column(TypeName = "vector(768)")]
+    public Vector Floats { get; set; } = default!;
 }

@@ -3,22 +3,33 @@ version: '3.8'
 name: dndtest
 
 services:
-  postgres:
-    image: pgvector/pgvector:pg17
-    container_name: pg
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=pgvector
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./docker/volumes/postgres:/var/lib/postgresql/data
-    restart: unless-stopped
+    postgres:
+        image: pgvector/pgvector:pg17
+        container_name: pg
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_DB=pgvector
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./docker/volumes/postgres:/var/lib/postgresql/data
 
-  tika:
-    image: tika-tesseract
-    container_name: tika-tesseract
-    ports:
-      - "9998:9998"
-    restart: unless-stopped
+    tika:
+        image: tika-tesseract
+        container_name: tika-tesseract
+        ports:
+          - "9998:9998"
+  
+    s3mock:
+        image: adobe/s3mock
+        container_name: s3mock
+        ports:
+            - "9090:9090"  # HTTP
+            - "9191:9191"  # HTTPS
+        environment:
+            - root=/data  # Set the root directory for persistence
+            - initialBuckets=dndtest
+            - retainFilesOnExit=true
+        volumes:
+            - ./docker/volumes/s3mock:/data  # Mount a named volume for persistence

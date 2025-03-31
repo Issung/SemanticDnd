@@ -15,7 +15,7 @@ public record EmbeddingsRequest(
 
 public record EmbeddingsResponse(
     string Model,
-    IReadOnlyList<IReadOnlyList<float>> Embeddings,
+    float[][] Embeddings,
     long TotalDuration,
     int LoadDuration,
     int PromptEvalCount

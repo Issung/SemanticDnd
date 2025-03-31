@@ -3,19 +3,21 @@ using System;
 using DndTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
-using Pgvector;
 
 #nullable disable
 
 namespace DndTest.Data.Migrations
 {
     [DbContext(typeof(DndDbContext))]
-    partial class DndDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250330101322_ExtractedText")]
+    partial class AddExtractedText
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +53,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("Documents", (string)null);
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.EmbeddingCache", b =>
@@ -82,7 +84,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("TextHash", "Model");
 
-                    b.ToTable("EmbeddingCache", (string)null);
+                    b.ToTable("EmbeddingCache");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.ExtractedText", b =>
@@ -107,7 +109,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("ExtractedText", (string)null);
+                    b.ToTable("ExtractedText");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.File", b =>
@@ -135,7 +137,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasIndex("Hash");
 
-                    b.ToTable("Files", (string)null);
+                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.SearchChunk", b =>
@@ -149,7 +151,7 @@ namespace DndTest.Data.Migrations
                     b.Property<int>("DocumentId")
                         .HasColumnType("integer");
 
-                    b.Property<Vector>("EmbeddingVector")
+                    b.Property<string>("EmbeddingVector")
                         .IsRequired()
                         .HasColumnType("vector(768)");
 
@@ -180,7 +182,7 @@ namespace DndTest.Data.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("TextVector"), "GIN");
 
-                    b.ToTable("SearchChunks", (string)null);
+                    b.ToTable("SearchChunks");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.TikaCache", b =>
@@ -194,7 +196,7 @@ namespace DndTest.Data.Migrations
 
                     b.HasKey("FileHash");
 
-                    b.ToTable("TikaCache", (string)null);
+                    b.ToTable("TikaCache");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

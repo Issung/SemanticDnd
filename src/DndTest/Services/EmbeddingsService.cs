@@ -1,30 +1,34 @@
-﻿using DndTest.Data;
+﻿using DndTest.Config;
+using DndTest.Data;
 using DndTest.Data.Model;
 using DndTest.Helpers.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DndTest.Services;
 
 public class EmbeddingsService(
     IOllamaClient ollamaClient,
-    DndDbContext dbContext
+    DndDbContext dbContext,
+    DndSettings settings
 )
 {
-    public async Task<CachedEmbedding> GetEmbeddingForText(string text)
+    public async Task<EmbeddingCache> GetEmbeddingForText(string text)
     {
         var hash = text.XxHash128();
-        var existingEmbedding = dbContext.EmbeddingsCache.SingleOrDefault(e => e.TextHash == hash);
+        var cache = await dbContext.EmbeddingsCache.SingleOrDefaultAsync(e => e.TextHash == hash && e.Model == settings.EmbeddingsModel);
 
-        if (existingEmbedding != null)
+        if (cache != null)
         {
-            return existingEmbedding;
+            return cache;
         }
 
-        var embeddingsResponse = await ollamaClient.Embeddings(new("nomic-embed-text", text));
+        var embeddingsResponse = await ollamaClient.Embeddings(new(settings.EmbeddingsModel, text));
 
-        var embedding = new CachedEmbedding
+        var embedding = new EmbeddingCache
         {
             Text = text,
             TextHash = hash,
+            Model = settings.EmbeddingsModel,
             Floats = embeddingsResponse.Embeddings[0],
         };
 

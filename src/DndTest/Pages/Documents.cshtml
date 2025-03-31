@@ -1,0 +1,27 @@
+﻿@page
+@model DocumentsModel
+@{
+    ViewData["Title"] = "Documents";
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Documents</h1>
+    <a href="/Document" class="btn btn-primary ml-auto">
+        Create Document
+    </a>
+</div>
+
+@foreach (var category in Model.DocumentsByCategory.Keys)
+{
+    <h5>@category</h5>
+    <br />
+
+    <ul>
+        @foreach (var doc in Model.DocumentsByCategory[category])
+        {
+            <li>
+                <a href=@($"/Document?Id={doc.Id}")>@doc.Name</a>
+            </li>
+        }
+    </ul>
+}

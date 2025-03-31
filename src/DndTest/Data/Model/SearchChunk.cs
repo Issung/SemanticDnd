@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using NpgsqlTypes;
+using Pgvector;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DndTest.Data.Model;
 
@@ -10,12 +12,16 @@ public class SearchChunk
     public int DocumentId { get; set; }
     public Document Document { get; set; } = null!;
 
-    public int EmbeddingId { get; set; }
-    public CachedEmbedding Embedding { get; set; } = null!;
-
     public string Text { get; set; } = null!;
 
-    public NpgsqlTypes.NpgsqlTsVector TextVector { get; set; } = null!;
+    public required int? PageNumber { get; set; }
 
-    public IReadOnlyList<float> EmbeddingVector { get; set; } = null!;
+    /// <summary>
+    /// This is a computed property, do not get or set it.
+    /// </summary>
+    [Column(TypeName = "tsvector")]
+    public NpgsqlTsVector TextVector { get; set; } = null!;
+
+    [Column(TypeName = "vector(768)")]
+    public Vector EmbeddingVector { get; set; } = null!;
 }

@@ -1,0 +1,50 @@
+﻿@page
+@model DocumentModel
+@{
+    ViewData["Title"] = "Document";
+}
+
+@if (Model.Id == null)
+{
+    <h1>Upload Document</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        <label>
+            Name
+            <input type="text" asp-for="Name" required />
+        </label>
+        <br />
+        <br />
+
+        <label>
+            Category
+            <select asp-for="Category" asp-items=DocumentModel.CategoryOptions></select>
+        </label>
+        <br />
+        <br />
+
+        <input type="file" id="file" name="file" asp-for="File" required />
+        <br />
+        <br />
+
+        <button type="submit">Upload</button>
+    </form>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>@Model.Name</h1>
+        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Are you sure you want to delete this item?')">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+
+    
+    <h3>@Model.Category</h3>
+    <br />
+    <br />
+
+    <h6>Extracted Text:</h6>
+    <pre>@Model.Text</pre>
+}

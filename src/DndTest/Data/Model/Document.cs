@@ -6,5 +6,12 @@ namespace DndTest.Data.Model;
 public class Document
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
+
+    public Category Category { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public Guid FileId { get; set; }
+    public File File { get; set; } = default!;
 }

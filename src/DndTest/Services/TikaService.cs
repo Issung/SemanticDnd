@@ -1,4 +1,6 @@
-﻿using DndTest.Data;
+﻿using DndTest.Config;
+using DndTest.Data;
+using DndTest.Data.Model;
 using DndTest.Helpers.Extensions;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -7,11 +9,11 @@ namespace DndTest.Services;
 
 public class TikaService(
     IHttpClientFactory httpClientFactory,
-    DndDbContext dbContext
+    DndDbContext dbContext,
+    DndSettings settings
 )
 {
-    private static readonly string tikaServerBaseUrl = "http://localhost:9998";
-    private static readonly JsonSerializerOptions jsonOptions = new()
+    public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         Converters =
@@ -19,27 +21,54 @@ public class TikaService(
             new TikaIntConverter(),
             new TikaLongConverter(),
             new TikaDateTimeConverter(),
-        }
+        },
     };
 
-    public async Task<TikaResponse> GetMetadata(Stream fileStream)
+    static TikaService()
+    {
+        JsonOptions.MakeReadOnly(populateMissingResolver: true);
+    }
+
+    public async Task<TikaResponse> Process(Stream fileStream)
     {
         var fileHash = fileStream.XXHash128();
 
-        var existingMetadata = dbContext.TikaCache.SingleOrDefault(m => m.FileHash == fileHash);
+        var cache = dbContext.TikaCache.SingleOrDefault(m => m.FileHash == fileHash);
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"{tikaServerBaseUrl}/tika");
+        if (cache != null)
+        {
+            return cache.TikaResponse;
+        }
+        
+        var (json, response) = await SendToTika(fileStream);
+
+        dbContext.TikaCache.Add(new TikaCache
+        {
+            FileHash = fileHash,
+            TikaResponseJson = json,
+        });
+        await dbContext.SaveChangesAsync();
+
+        return response;
+    }
+
+    private async Task<(string Json, TikaResponse response)> SendToTika(Stream fileStream)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, new Uri(new(settings.TikaBaseUrl), "/tika").AbsoluteUri);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        using var content = new StreamContent(fileStream);
+        fileStream.Position = 0;
+        var content = new StreamContent(fileStream);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
         request.Content = content;
 
-        var response = await httpClientFactory.CreateClient().SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        var httpResponse = await httpClientFactory.CreateClient().SendAsync(request);
+        httpResponse.EnsureSuccessStatusCode();
 
-        var responseStream = await response.Content.ReadAsStreamAsync();
-        return await JsonSerializer.DeserializeAsync<TikaResponse>(responseStream, jsonOptions) ?? throw new Exception("Deserialized TikaResponse unexpectedly null.");
+        var json = await httpResponse.Content.ReadAsStringAsync();
+        var response = JsonSerializer.Deserialize<TikaResponse>(json, JsonOptions) ?? throw new Exception("Deserialized TikaResponse unexpectedly null.");
+
+        return (json, response);
     }
 }
 
