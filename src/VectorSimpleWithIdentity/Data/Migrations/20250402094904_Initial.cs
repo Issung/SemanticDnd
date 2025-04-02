@@ -1,15 +1,14 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using NpgsqlTypes;
 using Pgvector;
 
 #nullable disable
 
-namespace DndTest.Data.Migrations
+namespace VectorSimpleWithIdentity.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,46 +56,16 @@ namespace DndTest.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmbeddingCache",
+                name: "TestModels",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Text = table.Column<string>(type: "text", nullable: false),
-                    TextHash = table.Column<string>(type: "text", nullable: false),
-                    Model = table.Column<string>(type: "text", nullable: false),
-                    Vector = table.Column<Vector>(type: "vector(768)", nullable: false)
+                    Embedding = table.Column<Vector>(type: "vector(768)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EmbeddingCache", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Files",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    S3Key = table.Column<string>(type: "text", nullable: false),
-                    Hash = table.Column<string>(type: "text", nullable: false),
-                    SizeBytes = table.Column<long>(type: "bigint", nullable: false),
-                    ContentType = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Files", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TikaCache",
-                columns: table => new
-                {
-                    FileHash = table.Column<string>(type: "text", nullable: false),
-                    TikaResponseJson = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TikaCache", x => x.FileHash);
+                    table.PrimaryKey("PK_TestModels", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -145,8 +114,8 @@ namespace DndTest.Data.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<string>(type: "text", nullable: false)
                 },
@@ -190,8 +159,8 @@ namespace DndTest.Data.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -201,72 +170,6 @@ namespace DndTest.Data.Migrations
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Documents",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Category = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    FileId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Documents", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Documents_Files_FileId",
-                        column: x => x.FileId,
-                        principalTable: "Files",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ExtractedText",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FileId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PageNumber = table.Column<int>(type: "integer", nullable: true),
-                    Text = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExtractedText", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ExtractedText_Files_FileId",
-                        column: x => x.FileId,
-                        principalTable: "Files",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SearchChunks",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DocumentId = table.Column<int>(type: "integer", nullable: false),
-                    Text = table.Column<string>(type: "text", nullable: false),
-                    PageNumber = table.Column<int>(type: "integer", nullable: true),
-                    TextVector = table.Column<NpgsqlTsVector>(type: "tsvector", nullable: false, computedColumnSql: "to_tsvector('english', \"SearchChunks\".\"Text\")", stored: true),
-                    EmbeddingVector = table.Column<Vector>(type: "vector(768)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SearchChunks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SearchChunks_Documents_DocumentId",
-                        column: x => x.DocumentId,
-                        principalTable: "Documents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -309,43 +212,12 @@ namespace DndTest.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Documents_FileId",
-                table: "Documents",
-                column: "FileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EmbeddingCache_TextHash_Model",
-                table: "EmbeddingCache",
-                columns: new[] { "TextHash", "Model" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ExtractedText_FileId",
-                table: "ExtractedText",
-                column: "FileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Files_Hash",
-                table: "Files",
-                column: "Hash");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SearchChunks_DocumentId",
-                table: "SearchChunks",
-                column: "DocumentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SearchChunks_EmbeddingVector",
-                table: "SearchChunks",
-                column: "EmbeddingVector")
+                name: "IX_TestModels_Embedding",
+                table: "TestModels",
+                column: "Embedding")
                 .Annotation("Npgsql:IndexMethod", "ivfflat")
                 .Annotation("Npgsql:IndexOperators", new[] { "vector_l2_ops" })
                 .Annotation("Npgsql:StorageParameter:lists", 100);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SearchChunks_TextVector",
-                table: "SearchChunks",
-                column: "TextVector")
-                .Annotation("Npgsql:IndexMethod", "GIN");
         }
 
         /// <inheritdoc />
@@ -367,28 +239,13 @@ namespace DndTest.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "EmbeddingCache");
-
-            migrationBuilder.DropTable(
-                name: "ExtractedText");
-
-            migrationBuilder.DropTable(
-                name: "SearchChunks");
-
-            migrationBuilder.DropTable(
-                name: "TikaCache");
+                name: "TestModels");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Documents");
-
-            migrationBuilder.DropTable(
-                name: "Files");
         }
     }
 }

@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorSimple", "VectorSimple\VectorSimple.csproj", "{F4A74F50-CDB7-4DA4-AEC6-A8A89E65B331}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorSimpleWithIdentity", "VectorSimpleWithIdentity\VectorSimpleWithIdentity.csproj", "{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,8 +26,19 @@ Global
 		{24C6C846-A928-4927-8897-0D4331602818}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24C6C846-A928-4927-8897-0D4331602818}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24C6C846-A928-4927-8897-0D4331602818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4A74F50-CDB7-4DA4-AEC6-A8A89E65B331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4A74F50-CDB7-4DA4-AEC6-A8A89E65B331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4A74F50-CDB7-4DA4-AEC6-A8A89E65B331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4A74F50-CDB7-4DA4-AEC6-A8A89E65B331}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CFE32E00-F0D4-4D11-B5D0-0362BC4F77C9}
 	EndGlobalSection
 EndGlobal

@@ -1,19 +1,21 @@
 using Amazon.S3;
 using DndTest.Config;
 using DndTest.Data;
+using DndTest.Data.Model;
 using DndTest.Services;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
 using Refit;
 
 namespace DndTest;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -102,6 +104,23 @@ public class Program
 
         app.MapRazorPages();
 
-        app.Run();
+        await using var scope = app.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DndDbContext>();
+
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var randomString = new string(Enumerable.Range(0, 32).Select(_ => chars[Random.Shared.Next(chars.Length)]).ToArray());
+        var floats = Enumerable.Range(0, 768).Select(_ => (float)Random.Shared.NextDouble()).ToArray();
+
+        var ec = new EmbeddingCache() { Model = "test", Text = randomString, TextHash = randomString, Vector = new Vector(floats) };
+
+        dbContext.EmbeddingsCache.Add(ec);
+
+        await dbContext.SaveChangesAsync();
+
+        dbContext.EmbeddingsCache.Remove(ec);
+
+        await dbContext.SaveChangesAsync();
+
+        //app.Run();
     }
 }

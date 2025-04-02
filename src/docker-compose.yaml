@@ -9,7 +9,7 @@ services:
         environment:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=password
-            - POSTGRES_DB=public
+            - POSTGRES_DB=dndtest
         ports:
             - "5432:5432"
         volumes:
@@ -33,3 +33,4 @@ services:
             - retainFilesOnExit=true
         volumes:
             - ./docker/volumes/s3mock:/data  # Mount a named volume for persistence
+
