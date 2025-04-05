@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorSimple", "VectorSimpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorSimpleWithIdentity", "VectorSimpleWithIdentity\VectorSimpleWithIdentity.csproj", "{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mre", "Mre\Mre.csproj", "{B81C4068-5968-BF3E-17F7-85C39207DE33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3FC2E2B-11C0-D750-6F2D-EDBB4C11F248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
