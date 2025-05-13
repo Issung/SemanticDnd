@@ -1,11 +1,14 @@
 {
-  "files.watcherExclude": {
-    "**/routeTree.gen.ts": true
-  },
-  "search.exclude": {
-    "**/routeTree.gen.ts": true
-  },
-  "files.readonlyInclude": {
-    "**/routeTree.gen.ts": true
-  }
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "files.watcherExclude": {
+        "**/routeTree.gen.ts": true
+    },
+    "search.exclude": {
+        "**/routeTree.gen.ts": true
+    },
+    "files.readonlyInclude": {
+        "**/routeTree.gen.ts": true
+    },
 }
