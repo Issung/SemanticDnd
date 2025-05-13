@@ -1,13 +1,12 @@
-import { Link } from '@tanstack/react-router'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button } from '@mui/material';
+
 
 export default function Header() {
-  return (
-    <header className="p-2 flex gap-2 bg-white text-black justify-between">
-      <nav className="flex flex-row">
-        <div className="px-2 font-bold">
-          <Link to="/">Home</Link>
-        </div>
-      </nav>
-    </header>
-  )
+  return <div id="header">
+        <Button size="small" variant="contained" color="primary" startIcon={<ArrowBackIcon/>}>Back</Button>
+        <h1 style={{margin: '0 0 0 10px', height: '100%'}}>
+            Header Here
+        </h1>
+    </div>
 }
