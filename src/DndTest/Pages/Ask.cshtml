@@ -1,0 +1,38 @@
+﻿@page
+@model AskModel
+@{
+    ViewData["Title"] = "Ask";
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Ask a Question</h1>
+    <form id="questionForm">
+        <input type="text" id="questionInput" name="question" placeholder="Enter question here" required />
+        <button type="submit">Ask</button>
+    </form>
+</div>
+
+<pre id="sseData" style="text-wrap: auto;"></pre>
+
+<script type="text/javascript">
+    document.getElementById('questionForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the form from doing a regular post
+
+        const question = document.getElementById('questionInput').value;
+        const sseUrl = `/api/question?question=${encodeURIComponent(question)}`;
+
+        document.getElementById('sseData').innerText = ''; // Clear previous output
+
+        const eventSource = new EventSource(sseUrl);
+
+        eventSource.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            if (data.Done) {
+                eventSource.close();
+            } else if (data.Response) {
+                document.getElementById('sseData').innerText += data.Response;
+            }
+        };
+    });
+</script>

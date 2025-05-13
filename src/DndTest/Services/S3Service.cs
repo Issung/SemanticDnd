@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using DndTest.Config;
+using System.Net.Sockets;
 
 namespace DndTest.Services;
 
@@ -41,5 +42,20 @@ public class S3Service(
 
             return null;
         }
+    }
+
+    public async Task<Uri> GetAccessUrl(string key)
+    {
+        var presignedUrlRequest = new GetPreSignedUrlRequest()
+        {
+            BucketName = bucketName,
+            Key = key,
+            Expires = DateTime.Now.AddDays(1),
+            Protocol = Protocol.HTTP // TODO don't use HTTP outside 
+        };
+
+        var preSignedUrl = await client.GetPreSignedURLAsync(presignedUrlRequest);
+
+        return new Uri(preSignedUrl);
     }
 }

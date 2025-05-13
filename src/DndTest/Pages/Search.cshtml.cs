@@ -18,7 +18,7 @@ public class SearchModel(
     {
         if (!string.IsNullOrWhiteSpace(Query))
         {
-            Results = await documentService.HybridSearchAsync(Query);
+            Results = await documentService.HybridSearch(Query);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace DndTest.Data.Model;
 /// This table is not searched on, just here to cache generated embedding floats.
 /// </summary>
 [Table("EmbeddingCache")]
-[Index(nameof(TextHash), nameof(Model))]
+[Index(nameof(TextHash), nameof(Model), IsUnique = true)]
 public class EmbeddingCache
 {
     public int Id { get; set; }
@@ -22,5 +22,6 @@ public class EmbeddingCache
 
     public string Model { get; set; } = default!;
 
+    [Column(TypeName = "vector(768)")]
     public Vector Vector { get; set; } = default!;
 }

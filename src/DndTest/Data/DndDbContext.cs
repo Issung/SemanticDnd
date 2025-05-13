@@ -16,15 +16,20 @@ public class DndDbContext(
     public DbSet<ExtractedText> ExtractedText { get; set; }
     public DbSet<SearchChunk> SearchChunks { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+
+        var cs = "Host=localhost;Port=5432;Database=dndtest;Username=postgres;Password=password";
+
+        optionsBuilder.UseNpgsql(cs, o => o.UseVector());
+
+        optionsBuilder.EnableSensitiveDataLogging();
+    }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasPostgresExtension("vector");
-
-        builder
-            .Entity<EmbeddingCache>(builder =>
-            {
-                builder.Property(ec => ec.Vector).HasColumnType("vector(768)");
-            });
 
         builder
             .Entity<SearchChunk>(searchChunk =>
@@ -32,7 +37,6 @@ public class DndDbContext(
                 searchChunk.Property(d => d.TextVector).HasComputedColumnSql("to_tsvector('english', \"SearchChunks\".\"Text\")", stored: true);
                 searchChunk.HasIndex(s => s.TextVector).HasMethod("GIN");
 
-                searchChunk.Property(sc => sc.EmbeddingVector).HasColumnType("vector(768)");
                 searchChunk.HasIndex(e => e.EmbeddingVector)
                     .HasMethod("ivfflat")
                     .HasOperators("vector_l2_ops")

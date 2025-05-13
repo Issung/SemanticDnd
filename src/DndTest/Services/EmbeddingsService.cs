@@ -15,6 +15,10 @@ public class EmbeddingsService(
 {
     public async Task<EmbeddingCache> GetEmbeddingForText(string text)
     {
+        if (string.IsNullOrWhiteSpace(text)) {
+            text = string.Empty;
+        }
+
         var hash = text.XxHash128();
         var cache = await dbContext.EmbeddingsCache.SingleOrDefaultAsync(e => e.TextHash == hash && e.Model == settings.EmbeddingsModel);
 

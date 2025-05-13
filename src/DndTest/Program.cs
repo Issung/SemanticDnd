@@ -1,15 +1,18 @@
 using Amazon.S3;
+using DndTest.Api;
+using DndTest.Api.Models;
+using DndTest.Api.Models.Request;
 using DndTest.Config;
 using DndTest.Data;
-using DndTest.Data.Model;
 using DndTest.Services;
-using Hangfire;
-using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
-using Pgvector;
 using Refit;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DndTest;
 
@@ -25,26 +28,30 @@ public class Program
         });
 
         // Add services to the container.
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        var cs = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         builder.Services.AddSingleton<DndSettings>();
 
         builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
-        builder.Services.AddHangfire(config =>
-        {
-            config.UsePostgreSqlStorage(c => c.UseNpgsqlConnection(connectionString));
-        });
-        builder.Services.AddHangfireServer(config =>
-        {
+        //var dbConnection = new NpgsqlConnection(connectionString) {  };
 
+        //builder.Services.AddHangfire(config =>
+        //{
+        //    config.UsePostgreSqlStorage(c => c.UseNpgsqlConnection(cs));
+        //});
+        //builder.Services.AddHangfireServer(config =>
+        //{
+        //    
+        //});
+
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        builder.Services.AddDbContext<DndDbContext>(options =>
-        {
-            options.UseNpgsql(connectionString, o => o.UseVector());
-            options.EnableSensitiveDataLogging();
-        });
+        builder.Services.AddDbContext<DndDbContext>();
 
         builder.Services
             .AddHttpClient()
@@ -58,14 +65,25 @@ public class Program
             ForcePathStyle = true,
         });
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins("http://localhost:8081") // Expo react-native web frontend.
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
 
         builder.Services
+            .AddScoped<DocumentApi>()
             .AddScoped<EmbeddingsService>()
             .AddSingleton<IAmazonS3>(s3Client)
             .AddSingleton<S3Service>()
             .AddScoped<DocumentService>()
             .AddScoped<FileService>()
             .AddScoped<TikaService>()
+            .AddScoped<LlmService>()
             .AddSingleton<SseTestService>()
         ;
 
@@ -79,6 +97,8 @@ public class Program
 
         var app = builder.Build();
 
+        app.UseCors();
+
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -91,9 +111,10 @@ public class Program
             app.UseHsts();
         }
 
-        app.UseHangfireDashboard();
+        // This breaks the postgres vector plugin :( https://github.com/pgvector/pgvector-dotnet/issues/51
+        //app.UseHangfireDashboard();
 
-        app.MapGet("/api/ssetest", (SseTestService sseTestService) => sseTestService.Test());
+        MapEndpoints(app);
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
@@ -104,23 +125,29 @@ public class Program
 
         app.MapRazorPages();
 
-        await using var scope = app.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DndDbContext>();
+        app.Run();
+    }
 
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var randomString = new string(Enumerable.Range(0, 32).Select(_ => chars[Random.Shared.Next(chars.Length)]).ToArray());
-        var floats = Enumerable.Range(0, 768).Select(_ => (float)Random.Shared.NextDouble()).ToArray();
+    private static void MapEndpoints(WebApplication app)
+    {
+        app.MapGet("/api/documents", ([FromServices] DocumentApi api) => api.GetAll());
+        app.MapGet("/api/document/{id:int}", ([FromServices] DocumentApi api, [FromRoute] int id) => api.Get(id));
 
-        var ec = new EmbeddingCache() { Model = "test", Text = randomString, TextHash = randomString, Vector = new Vector(floats) };
+        app.MapPost("/api/search", async ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.Search(request));
 
-        dbContext.EmbeddingsCache.Add(ec);
+        app.MapGet("/api/ssetest", (SseTestService sseTestService) => sseTestService.Test());
+        app.MapGet("/api/question", async ([FromServices] LlmService llmService, [FromQuery] string question, HttpResponse response) =>
+        {
+            response.Headers.CacheControl = "no-cache";
+            response.Headers.Append("X-Accel-Buffering", "no"); // for Nginx or reverse proxy
+            response.ContentType = "text/event-stream";
 
-        await dbContext.SaveChangesAsync();
-
-        dbContext.EmbeddingsCache.Remove(ec);
-
-        await dbContext.SaveChangesAsync();
-
-        //app.Run();
+            await foreach (var part in await llmService.Question(question))
+            {
+                var json = JsonSerializer.Serialize(part);
+                await response.WriteAsync($"data: {json}\n\n");
+                await response.Body.FlushAsync();
+            }
+        });
     }
 }

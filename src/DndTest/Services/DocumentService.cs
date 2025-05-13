@@ -1,8 +1,9 @@
 ﻿using DndTest.Data;
 using DndTest.Data.Model;
+using DndTest.Helpers.Extensions;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
-using Pgvector.EntityFrameworkCore;
+using Npgsql;
 
 namespace DndTest.Services;
 
@@ -58,15 +59,35 @@ public class DocumentService(
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyList<SearchChunk>> HybridSearchAsync(
-        string searchQuery,
-        double keywordWeight = 0.4,
-        double vectorWeight = 0.6,
+    private static readonly string[] stopwords = {
+        "I", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves",
+        "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their",
+        "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are",
+        "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an",
+        "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about",
+        "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up",
+        "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when",
+        "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no",
+        "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don",
+        "should", "now", "d", "ll", "m", "o", "re", "ve", "y", "ain", "aren", "couldn", "didn", "doesn", "hadn",
+        "hasn", "haven", "isn", "ma", "mightn", "mustn", "needn", "shan", "shouldn", "wasn", "weren", "won", "wouldn"
+    };
+
+    public async Task<IReadOnlyList<SearchChunk>> HybridSearch(
+        string? searchQuery,
+        Category? category,
+        double keywordWeight = 0.6,
+        double vectorWeight = 0.4,
         int limit = 20
     )
     {
+        var textQuery = (searchQuery ?? string.Empty)
+            .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(word => !stopwords.Contains(word))
+            .StringJoin(" | "); // We want to OR all the words.
+
         var embeddingsVector = await embeddingsService.GetEmbeddingForText(searchQuery);
-        //var floats = JsonSerializer.Serialize(embeddingsVector.Floats);
         var embedding = embeddingsVector.Vector;
 
         // Normalize weights
@@ -74,31 +95,34 @@ public class DocumentService(
         keywordWeight /= totalWeight;
         vectorWeight /= totalWeight;
 
-        /*
-         SELECT *,
-           ((0.4 * ts_rank("SearchChunks"."TextVector", plainto_tsquery('english', 'glantri'))) +
-           (0.6 * (1 - ("SearchChunks"."EmbeddingVector" <-> '[0]')))) AS CombinedScore
-        FROM "SearchChunks"
-        WHERE "SearchChunks"."TextVector" @@ plainto_tsquery('english', 'glantri')
-        ORDER BY CombinedScore DESC
-        LIMIT 
-         */
+        var categoryFilter = category.HasValue
+            ? $"AND d.\"Category\" = @category"
+            : string.Empty;
 
-        //return await dbContext.SearchChunks
-        //    .FromSqlInterpolated($@"
-        //        SELECT *, 
-        //            (({keywordWeight} * ts_rank(""SearchChunks"".""TextVector"", plainto_tsquery('english', {searchQuery}))) + 
-        //            ({vectorWeight} * (1 - (""SearchChunks"".""EmbeddingVector"" <-> {floats})))) AS ""CombinedScore""
-        //        FROM ""SearchChunks""
-        //        WHERE ""SearchChunks"".""TextVector"" @@ plainto_tsquery('english', {searchQuery})
-        //        ORDER BY CombinedScore DESC
-        //        LIMIT {limit}"
-        //    )
-        //    .ToArrayAsync();
+        var sql = $@"
+SELECT *
+FROM (
+    SELECT *,
+        (({keywordWeight} * ts_rank(sc.""TextVector"", to_tsquery(@textQuery))) +
+        ({vectorWeight} * (1 - (sc.""EmbeddingVector"" <-> @embedding)))) AS ""CombinedScore""
+    FROM ""SearchChunks"" sc
+    JOIN ""Documents"" d ON sc.""DocumentId"" = d.""Id""
+    WHERE sc.""TextVector"" @@ to_tsquery(@textQuery)
+    {categoryFilter}
+) AS subquery
+WHERE ""CombinedScore"" > 0
+ORDER BY ""CombinedScore"" DESC
+LIMIT @limit
+";
 
         var items = await dbContext.SearchChunks
-            .OrderBy(x => x.EmbeddingVector.L2Distance(embedding))
-            .Take(10)
+            .FromSqlRaw(sql, new NpgsqlParameter?[] {
+                new("textQuery", textQuery),
+                new("embedding", embedding),
+                new("limit", limit),
+                category == null ? null : new("category", category),
+            }.Where(p => p!= null))
+            .Include(sc => sc.Document)
             .ToArrayAsync();
 
         return items;

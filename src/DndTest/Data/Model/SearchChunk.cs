@@ -14,6 +14,10 @@ public class SearchChunk
 
     public string Text { get; set; } = null!;
 
+    /// <summary>
+    /// Indexed from 0 so remember to add 1 for display.
+    /// TODO: Maybe save them indexed from 1 upwards.
+    /// </summary>
     public required int? PageNumber { get; set; }
 
     /// <summary>

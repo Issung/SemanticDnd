@@ -10,6 +10,8 @@ public class DndSettings
 
     public string TikaBaseUrl = "http://localhost:9998";
 
+    public Uri OllamaBaseUrl = new("http://localhost:11434");
+
     private static readonly IReadOnlyDictionary<string, int> embeddingsSizes = new Dictionary<string, int>()
     {
         ["nomic-embed-text"] = 768,
