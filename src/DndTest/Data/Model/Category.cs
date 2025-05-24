@@ -5,4 +5,5 @@ public enum Category
     Lore,
     Items,
     Rules,
+    Spells,
 }

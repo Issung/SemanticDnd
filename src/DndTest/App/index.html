@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <link rel="icon" href="/favicon.ico" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-tsrouter-app"
-    />
+    <meta name="description" content="Web site created using create-tsrouter-app" />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Create TanStack App - dnd</title>
-  </head>
-  <body>
+
+    <!-- Disable pinch zooming, so the PWA acts like a real app. https://stackoverflow.com/a/11689448/8306962 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="HandheldFriendly" content="true" />
+</head>
+
+<body>
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+</body>
+
 </html>

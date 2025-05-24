@@ -4,14 +4,49 @@ using DndTest.Helpers.Extensions;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using NpgsqlTypes;
+using Pgvector;
+using System.Text;
 
 namespace DndTest.Services;
 
 public class DocumentService(
     DndDbContext dbContext,
-    EmbeddingsService embeddingsService
+    EmbeddingsService embeddingsService,
+    FileService fileService
 )
 {
+    public async Task UploadPlainText(string name, Category category, string text)
+    {
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
+
+        var file = await fileService.Upload(stream, name, "text/plain");
+
+        var document = new Document
+        {
+            Name = name,
+            Category = category,
+            File = file,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        dbContext.Documents.Add(document);
+
+        await dbContext.SaveChangesAsync();
+
+        var extractedText = new ExtractedText
+        {
+            FileId = file.Id,
+            PageNumber = null,
+            Text = text,
+        };
+
+        dbContext.ExtractedText.Add(extractedText);
+        await dbContext.SaveChangesAsync();
+
+        await CreateSearchChunks(document.Id, [extractedText]);
+    }
+
     public async Task<IReadOnlyList<ExtractedText>> ChunkTikaResponse(Guid fileId, TikaResponse response)
     {
         var doc = new HtmlDocument();
@@ -43,13 +78,15 @@ public class DocumentService(
     {
         foreach (var extractedText in extractedTexts)
         {
-            var embeddings = await embeddingsService.GetEmbeddingForText(extractedText.Text);
+            //var embeddings = await embeddingsService.GetEmbeddingForText(extractedText.Text);
+            var embeddings = new Vector(Enumerable.Repeat(0f, 768).ToArray());
 
             var searchChunk = new SearchChunk()
             {
                 DocumentId = documentId,
                 Text = extractedText.Text,
-                EmbeddingVector = embeddings.Vector,
+                EmbeddingVector = embeddings,
+                //EmbeddingVector = embeddings.Vector,
                 PageNumber = extractedText.PageNumber,
             };
 
@@ -73,7 +110,47 @@ public class DocumentService(
         "hasn", "haven", "isn", "ma", "mightn", "mustn", "needn", "shan", "shouldn", "wasn", "weren", "won", "wouldn"
     };
 
-    public async Task<IReadOnlyList<SearchChunk>> HybridSearch(
+    public async Task<IReadOnlyCollection<SearchChunk>> TradSearch(
+        string? query,
+        Category? category,
+        int limit = 20
+    )
+    {
+        var textQuery = (query ?? string.Empty)
+            .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(word => !stopwords.Contains(word))
+            .StringJoin(" | ");
+
+        var hasTextQuery = !string.IsNullOrWhiteSpace(textQuery);
+
+        var searchQuery = dbContext.SearchChunks
+            .Include(sc => sc.Document)
+            .Where(sc =>
+                (!hasTextQuery || sc.TextVector.Matches(EF.Functions.ToTsQuery(textQuery))) &&
+                (!category.HasValue || sc.Document.Category == category)
+            );
+
+        if (hasTextQuery)
+        {
+            searchQuery = searchQuery
+                .OrderByDescending(sc => EF.Functions.ILike(sc.Document.Name, $"%{query}%"))
+                .ThenByDescending(sc => sc.TextVector.Rank(EF.Functions.ToTsQuery(textQuery)));
+        }
+        else
+        {
+            searchQuery = searchQuery.OrderBy(sc => sc.Document.Name);
+        }
+
+        var results = await searchQuery
+            .Take(limit)
+            .ToArrayAsync();
+
+        return results;
+    }
+
+
+    public async Task<IReadOnlyCollection<SearchChunk>> HybridSearch(
         string? searchQuery,
         Category? category,
         double keywordWeight = 0.6,

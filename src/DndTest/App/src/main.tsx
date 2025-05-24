@@ -2,6 +2,8 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
     Outlet,
     RouterProvider,
@@ -13,19 +15,36 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
+import { Bookmarks } from './Bookmarks.tsx';
 import { Footer } from './components/Footer.tsx';
 import Header from './components/Header.tsx';
-import DocumentView from './pages/document/DocumentView.tsx';
+import { Content } from './Content.tsx';
+import { Home } from './Home.tsx';
+import DocumentPage from './pages/document/DocumentPage.tsx';
+import SearchPage from './pages/search/SearchPage.tsx';
 import reportWebVitals from './reportWebVitals.ts';
 import './styles.css';
+
+const theme = createTheme({
+    palette: {
+        mode: 'dark',
+    },
+});
 
 const rootRoute = createRootRoute({
     component: () => (
         <>
-            <Header/>
-            <Outlet />
-            <Footer/>
-            <TanStackRouterDevtools />
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Header />
+                <Box maxWidth={750} mx="auto" mt={4}>
+                    <div id="content">
+                        <Outlet />
+                    </div>
+                </Box>
+                <Footer />
+                <TanStackRouterDevtools />
+            </ThemeProvider>
         </>
     ),
 })
@@ -39,7 +58,7 @@ const indexRoute = createRoute({
 const documentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/document/$id',
-    component: DocumentView,
+    component: DocumentPage,
     parseParams: ({ id }) => {
         const parsedId = parseInt(id)
         if (isNaN(parsedId))
@@ -51,7 +70,31 @@ const documentRoute = createRoute({
     stringifyParams: ({ id }) => ({ id: String(id) }),
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, documentRoute])
+const homeRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/home',
+    component: Home
+});
+
+const contentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/content',
+    component: Content
+});
+
+const searchRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/search',
+    component: SearchPage
+});
+
+const settingsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/bookmarks',
+    component: Bookmarks
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, documentRoute, homeRoute, contentRoute, settingsRoute, searchRoute])
 
 const router = createRouter({
     routeTree,
@@ -69,12 +112,16 @@ declare module '@tanstack/react-router' {
 }
 
 const rootElement = document.getElementById('app')
+const queryClient = new QueryClient()
+
 if (rootElement && !rootElement.innerHTML)
 {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
         <StrictMode>
-            <RouterProvider router={router} />
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>
         </StrictMode>,
     )
 }

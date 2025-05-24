@@ -17,7 +17,7 @@ public class LlmService(
 
     public async Task<IAsyncEnumerable<ResponsePart>> Question(string question)
     {
-        var chunks = await documentService.HybridSearch(question);
+        var chunks = await documentService.HybridSearch(question, null);
 
         var documentsString = chunks
             .Select((chunk, index) => $"""

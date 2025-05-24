@@ -7,6 +7,13 @@
 		<UserSecretsId>aspnet-DndTest-f0434520-4717-4df9-9764-69a01de270bb</UserSecretsId>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<WarningsAsErrors>
+			<!-- Task is not awaited or saved.  -->
+			CS4014;
+		</WarningsAsErrors>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
 		<PackageReference Include="AWSSDK.S3" Version="3.7.415.28" />

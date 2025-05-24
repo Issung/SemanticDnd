@@ -8,9 +8,19 @@ public class SearchApi(
     DocumentService documentService
 )
 {
-    public async Task<SearchResponse> Search(SearchRequest request)
+    public async Task<SearchResponse> TradSearch(SearchRequest request)
+    {
+        var results = await documentService.TradSearch(request.Query, request.Category);
+        var hits = results.Select(r => new SearchHit(r));
+
+        return new(999, hits);
+    }
+
+    public async Task<SearchResponse> HybridSearch(SearchRequest request)
     {
         var results = await documentService.HybridSearch(request.Query, request.Category);
-        return new(results);
+        var hits = results.Select(r => new SearchHit(r));
+
+        return new(999, hits);
     }
 }

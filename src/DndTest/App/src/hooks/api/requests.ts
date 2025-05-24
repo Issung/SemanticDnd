@@ -1,4 +1,4 @@
-import { Category } from "./common";
+import type { Category } from "./common";
 
 export interface SearchRequest {
     query: string | undefined;

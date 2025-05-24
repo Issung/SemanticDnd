@@ -18,9 +18,15 @@ namespace DndTest;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static Task Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        return Main2();
+    }
+
+    // TODO: Refactor so we can use args properly.
+    public static async Task Main2(Func<WebApplication, Task>? action = null)
+    {
+        var builder = WebApplication.CreateBuilder([]);
 
         builder.Services.Configure<KestrelServerOptions>(options =>
         {
@@ -69,6 +75,10 @@ public class Program
         {
             options.AddDefaultPolicy(policy =>
             {
+                policy.WithOrigins("http://localhost:3000") // Plain react SPA
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+
                 policy.WithOrigins("http://localhost:8081") // Expo react-native web frontend.
                     .AllowAnyHeader()
                     .AllowAnyMethod();
@@ -80,6 +90,7 @@ public class Program
             .AddScoped<EmbeddingsService>()
             .AddSingleton<IAmazonS3>(s3Client)
             .AddSingleton<S3Service>()
+            .AddScoped<SearchApi>()
             .AddScoped<DocumentService>()
             .AddScoped<FileService>()
             .AddScoped<TikaService>()
@@ -125,6 +136,11 @@ public class Program
 
         app.MapRazorPages();
 
+        if (action != null)
+        {
+            await action(app);
+        }
+
         app.Run();
     }
 
@@ -133,7 +149,8 @@ public class Program
         app.MapGet("/api/documents", ([FromServices] DocumentApi api) => api.GetAll());
         app.MapGet("/api/document/{id:int}", ([FromServices] DocumentApi api, [FromRoute] int id) => api.Get(id));
 
-        app.MapPost("/api/search", async ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.Search(request));
+        app.MapPost("/api/tradsearch", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.TradSearch(request));
+        app.MapPost("/api/search", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.HybridSearch(request));
 
         app.MapGet("/api/ssetest", (SseTestService sseTestService) => sseTestService.Test());
         app.MapGet("/api/question", async ([FromServices] LlmService llmService, [FromQuery] string question, HttpResponse response) =>

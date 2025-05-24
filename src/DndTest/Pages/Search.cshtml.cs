@@ -12,13 +12,13 @@ public class SearchModel(
     [BindProperty(SupportsGet = true)]
     public string? Query { get; set; }
 
-    public IReadOnlyList<SearchChunk> Results { get; set; } = [];
+    public IReadOnlyCollection<SearchChunk> Results { get; set; } = [];
 
     public async Task OnGet()
     {
         if (!string.IsNullOrWhiteSpace(Query))
         {
-            Results = await documentService.HybridSearch(Query);
+            Results = await documentService.HybridSearch(Query, null);
         }
     }
 }

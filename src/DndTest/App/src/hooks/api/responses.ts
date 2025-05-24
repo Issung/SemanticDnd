@@ -1,4 +1,4 @@
-import { Category } from "./common";
+import type { Category } from "./common";
 
 export interface Document {
     id: number;
@@ -14,16 +14,17 @@ export interface DocumentResponse {
 }
 
 export interface DocumentsResponse {
-    documents: Document[];
+    documents: Array<Document>;
 }
 
 export interface SearchHit {
     name: string;
+    category: Category;
     documentId: number;
     pageNumber: number | undefined;
 }
 
 export interface SearchResponse {
     totalCount: number;
-    hits: SearchHit[];
+    hits: Array<SearchHit>;
 }

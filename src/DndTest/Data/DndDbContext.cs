@@ -55,4 +55,13 @@ public class DndDbContext(
             .HaveConversion<string>();
     }
 
+    public override void Dispose()
+    {
+        base.Dispose();
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        return base.DisposeAsync();
+    }
 }

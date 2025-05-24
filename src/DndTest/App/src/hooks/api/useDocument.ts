@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "./queryKeys";
-import { DocumentResponse } from "./responses";
+import type { DocumentResponse } from "./responses";
 
 export function useDocument(id: number) {
     const { apiBaseUrl } = { apiBaseUrl: 'https://localhost:7223/api' }

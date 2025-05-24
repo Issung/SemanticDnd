@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorSimpleWithIdentity", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mre", "Mre\Mre.csproj", "{B81C4068-5968-BF3E-17F7-85C39207DE33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLoader", "DataLoader\DataLoader.csproj", "{AE073A4B-ADAA-4D5F-B2FC-9A69762D40A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B81C4068-5968-BF3E-17F7-85C39207DE33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE073A4B-ADAA-4D5F-B2FC-9A69762D40A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE073A4B-ADAA-4D5F-B2FC-9A69762D40A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE073A4B-ADAA-4D5F-B2FC-9A69762D40A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE073A4B-ADAA-4D5F-B2FC-9A69762D40A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
