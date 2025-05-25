@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { useConfigContext } from "../configContext";
 import { QueryKeys } from "./queryKeys";
 import type { DocumentsResponse } from "./responses";
 
 export function useDocuments() {
-    const { apiBaseUrl } = { apiBaseUrl: 'https://localhost:7223/api' }
+    const { apiBaseUrl } = useConfigContext();
     
     return useQuery({
         queryKey: [QueryKeys.documents],

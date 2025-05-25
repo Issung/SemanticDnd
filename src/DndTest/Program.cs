@@ -1,6 +1,5 @@
 using Amazon.S3;
 using DndTest.Api;
-using DndTest.Api.Models;
 using DndTest.Api.Models.Request;
 using DndTest.Config;
 using DndTest.Data;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Refit;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -36,7 +34,15 @@ public class Program
         // Add services to the container.
         var cs = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        builder.Services.AddSingleton<DndSettings>();
+        var settings = new DndSettings()
+        {
+            Frontend =
+            {
+                SpaProxyAddress = "http://localhost:3000/",
+            }
+        };
+
+        builder.Services.AddSingleton(settings);
 
         builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
@@ -86,6 +92,7 @@ public class Program
         });
 
         builder.Services
+            .AddFrontendSpa(settings)
             .AddScoped<DocumentApi>()
             .AddScoped<EmbeddingsService>()
             .AddSingleton<IAmazonS3>(s3Client)
@@ -124,6 +131,8 @@ public class Program
 
         // This breaks the postgres vector plugin :( https://github.com/pgvector/pgvector-dotnet/issues/51
         //app.UseHangfireDashboard();
+
+        app.MapFrontendSpa(settings.Frontend);
 
         MapEndpoints(app);
 

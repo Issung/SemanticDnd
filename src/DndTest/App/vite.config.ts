@@ -2,11 +2,14 @@ import path from 'node:path';
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from 'vite-plugin-pwa';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/app',   // Must match what's in main.tsx `createRouter()`.
     plugins: [
         viteReact(),
+        TanStackRouterVite({}),
         VitePWA({   // https://adueck.github.io/blog/caching-everything-for-totally-offline-pwa-vite-react/
             // add this to cache all the imports
             workbox: {

@@ -103,6 +103,7 @@ const router = createRouter({
     scrollRestoration: true,
     defaultStructuralSharing: true,
     defaultPreloadStaleTime: 0,
+    basepath: '/app',   // Must match what's in vite.config.ts.
 })
 
 declare module '@tanstack/react-router' {

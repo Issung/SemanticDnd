@@ -2,4 +2,12 @@
 
 import { tanstackConfig } from "@tanstack/eslint-config";
 
-export default [...tanstackConfig];
+export default [
+    ...tanstackConfig,
+    {
+        rules: {
+            "@typescript-eslint/consistent-type-imports": "off",
+            "import/order": "off"
+        }
+    }
+];

@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { useConfigContext } from "../configContext";
 import { QueryKeys } from "./queryKeys";
 import type { DocumentResponse } from "./responses";
 
 export function useDocument(id: number) {
-    const { apiBaseUrl } = { apiBaseUrl: 'https://localhost:7223/api' }
+    const { apiBaseUrl } = useConfigContext();
     
     if (typeof id !== 'number' || isNaN(id)) {
         throw new Error(`Document id '${id}' is not valid.`);
