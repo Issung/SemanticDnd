@@ -1,4 +1,5 @@
-﻿using NpgsqlTypes;
+﻿using DndTest.Data.Model.Content;
+using NpgsqlTypes;
 using Pgvector;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,7 +11,7 @@ public class SearchChunk
     public int Id { get; set; }
 
     public int DocumentId { get; set; }
-    public Document Document { get; set; } = null!;
+    public Note Document { get; set; } = null!;
 
     public string Text { get; set; } = null!;
 

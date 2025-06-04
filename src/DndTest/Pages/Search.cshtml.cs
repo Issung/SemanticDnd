@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DndTest.Pages;
 
 public class SearchModel(
-    DocumentService documentService
+    NoteService documentService
 ) : PageModel
 {
     [BindProperty(SupportsGet = true)]
@@ -16,9 +16,9 @@ public class SearchModel(
 
     public async Task OnGet()
     {
-        if (!string.IsNullOrWhiteSpace(Query))
-        {
-            Results = await documentService.HybridSearch(Query, null);
-        }
+        //if (!string.IsNullOrWhiteSpace(Query))
+        //{
+        //    Results = await documentService.HybridSearch(Query, null);
+        //}
     }
 }

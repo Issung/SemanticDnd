@@ -1,5 +1,6 @@
 ﻿using DndTest.Data;
 using DndTest.Data.Model;
+using DndTest.Data.Model.Content;
 using DndTest.Helpers.Extensions;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
@@ -10,33 +11,31 @@ using System.Text;
 
 namespace DndTest.Services;
 
-public class DocumentService(
+public class NoteService(
     DndDbContext dbContext,
     EmbeddingsService embeddingsService,
     FileService fileService
 )
 {
-    public async Task UploadPlainText(string name, Category category, string text)
+    public async Task UploadPlainText(string name, string text)
     {
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
 
         var file = await fileService.Upload(stream, name, "text/plain");
 
-        var document = new Document
+        var note = new Note
         {
             Name = name,
-            Category = category,
-            File = file,
-            CreatedAt = DateTime.UtcNow,
+            Content = text,
         };
 
-        dbContext.Documents.Add(document);
+        dbContext.Items.Add(note);
 
         await dbContext.SaveChangesAsync();
 
         var extractedText = new ExtractedText
         {
-            FileId = file.Id,
+            
             PageNumber = null,
             Text = text,
         };
@@ -44,10 +43,10 @@ public class DocumentService(
         dbContext.ExtractedText.Add(extractedText);
         await dbContext.SaveChangesAsync();
 
-        await CreateSearchChunks(document.Id, [extractedText]);
+        await CreateSearchChunks(note.Id, [extractedText]);
     }
 
-    public async Task<IReadOnlyList<ExtractedText>> ChunkTikaResponse(Guid fileId, TikaResponse response)
+    public async Task<IReadOnlyList<ExtractedText>> ChunkTikaResponse(int fileId, TikaResponse response)
     {
         var doc = new HtmlDocument();
         doc.LoadHtml(response.Content);
@@ -112,7 +111,6 @@ public class DocumentService(
 
     public async Task<IReadOnlyCollection<SearchChunk>> TradSearch(
         string? query,
-        Category? category,
         int limit = 20
     )
     {
@@ -126,10 +124,7 @@ public class DocumentService(
 
         var searchQuery = dbContext.SearchChunks
             .Include(sc => sc.Document)
-            .Where(sc =>
-                (!hasTextQuery || sc.TextVector.Matches(EF.Functions.ToTsQuery(textQuery))) &&
-                (!category.HasValue || sc.Document.Category == category)
-            );
+            .Where(sc => !hasTextQuery || sc.TextVector.Matches(EF.Functions.ToTsQuery(textQuery)));
 
         if (hasTextQuery)
         {
@@ -147,61 +142,5 @@ public class DocumentService(
             .ToArrayAsync();
 
         return results;
-    }
-
-
-    public async Task<IReadOnlyCollection<SearchChunk>> HybridSearch(
-        string? searchQuery,
-        Category? category,
-        double keywordWeight = 0.6,
-        double vectorWeight = 0.4,
-        int limit = 20
-    )
-    {
-        var textQuery = (searchQuery ?? string.Empty)
-            .Split(" ", StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => s.Trim())
-            .Where(word => !stopwords.Contains(word))
-            .StringJoin(" | "); // We want to OR all the words.
-
-        var embeddingsVector = await embeddingsService.GetEmbeddingForText(searchQuery);
-        var embedding = embeddingsVector.Vector;
-
-        // Normalize weights
-        var totalWeight = keywordWeight + vectorWeight;
-        keywordWeight /= totalWeight;
-        vectorWeight /= totalWeight;
-
-        var categoryFilter = category.HasValue
-            ? $"AND d.\"Category\" = @category"
-            : string.Empty;
-
-        var sql = $@"
-SELECT *
-FROM (
-    SELECT *,
-        (({keywordWeight} * ts_rank(sc.""TextVector"", to_tsquery(@textQuery))) +
-        ({vectorWeight} * (1 - (sc.""EmbeddingVector"" <-> @embedding)))) AS ""CombinedScore""
-    FROM ""SearchChunks"" sc
-    JOIN ""Documents"" d ON sc.""DocumentId"" = d.""Id""
-    WHERE sc.""TextVector"" @@ to_tsquery(@textQuery)
-    {categoryFilter}
-) AS subquery
-WHERE ""CombinedScore"" > 0
-ORDER BY ""CombinedScore"" DESC
-LIMIT @limit
-";
-
-        var items = await dbContext.SearchChunks
-            .FromSqlRaw(sql, new NpgsqlParameter?[] {
-                new("textQuery", textQuery),
-                new("embedding", embedding),
-                new("limit", limit),
-                category == null ? null : new("category", category),
-            }.Where(p => p!= null))
-            .Include(sc => sc.Document)
-            .ToArrayAsync();
-
-        return items;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using DndTest.Data;
 using DndTest.Helpers.Extensions;
-using File = DndTest.Data.Model.File;
+using File = DndTest.Data.Model.Content.File;
 
 namespace DndTest.Services;
 
@@ -13,33 +13,32 @@ public class FileService(
     {
         var hash = stream.XXHash128();
 
-        var existingRecord = dbContext.Files.SingleOrDefault(f => f.Hash == hash);
+        var existingRecord = dbContext.Files.SingleOrDefault(f => f.FileHash == hash);
 
         if (existingRecord != null)
         {
             return existingRecord;
         }
 
-        var id = Guid.NewGuid();
+        // TODO: Use tenancy id within the s3 key.
         var extension = Path.GetExtension(filename) ?? throw new Exception("File extension unexpectedly null.");
-        var key = id + extension;
+        var key = Guid.NewGuid() + extension;
 
         stream.Position = 0;
         await s3Service.Put(key, stream, contentType);
 
-        var newRecord = new File
+        var newFile = new File
         {
-            Id = id,
-            S3Key = key,
-            Hash = hash,
+            S3ObjectKey = key,
+            FileHash = hash,
             SizeBytes = stream.Length,
             ContentType = contentType,
         };
 
-        dbContext.Files.Add(newRecord);
+        dbContext.Items.Add(newFile);
 
         await dbContext.SaveChangesAsync();
 
-        return newRecord;
+        return newFile;
     }
 }

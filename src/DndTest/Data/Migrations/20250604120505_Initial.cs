@@ -6,7 +6,7 @@ using Pgvector;
 
 #nullable disable
 
-namespace DndTest.Data.Migrations
+namespace DndTest.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -57,6 +57,20 @@ namespace DndTest.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomFields",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "VARCHAR(64)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomFields", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EmbeddingCache",
                 columns: table => new
                 {
@@ -73,18 +87,16 @@ namespace DndTest.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Files",
+                name: "Tenants",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    S3Key = table.Column<string>(type: "text", nullable: false),
-                    Hash = table.Column<string>(type: "text", nullable: false),
-                    SizeBytes = table.Column<long>(type: "bigint", nullable: false),
-                    ContentType = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Files", x => x.Id);
+                    table.PrimaryKey("PK_Tenants", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -206,23 +218,54 @@ namespace DndTest.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Documents",
+                name: "CustomFieldCondition",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Category = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    FileId = table.Column<Guid>(type: "uuid", nullable: false)
+                    CustomFieldId = table.Column<int>(type: "integer", nullable: false),
+                    DependsOnCustomFieldId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Documents", x => x.Id);
+                    table.PrimaryKey("PK_CustomFieldCondition", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Documents_Files_FileId",
-                        column: x => x.FileId,
-                        principalTable: "Files",
+                        name: "FK_CustomFieldCondition_CustomFields_CustomFieldId",
+                        column: x => x.CustomFieldId,
+                        principalTable: "CustomFields",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomFieldCondition_CustomFields_DependsOnCustomFieldId",
+                        column: x => x.DependsOnCustomFieldId,
+                        principalTable: "CustomFields",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomFieldOption",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CustomFieldId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    CustomFieldConditionId = table.Column<int>(type: "integer", nullable: true),
+                    ItemCustomFieldValueId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomFieldOption", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomFieldOption_CustomFieldCondition_CustomFieldCondition~",
+                        column: x => x.CustomFieldConditionId,
+                        principalTable: "CustomFieldCondition",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CustomFieldOption_CustomFields_CustomFieldId",
+                        column: x => x.CustomFieldId,
+                        principalTable: "CustomFields",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -233,17 +276,140 @@ namespace DndTest.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FileId = table.Column<int>(type: "integer", nullable: false),
                     PageNumber = table.Column<int>(type: "integer", nullable: true),
                     Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ExtractedText", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Files",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    S3ObjectKey = table.Column<string>(type: "text", nullable: false),
+                    FileHash = table.Column<string>(type: "text", nullable: false),
+                    SizeBytes = table.Column<long>(type: "bigint", nullable: false),
+                    ContentType = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Files", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Folders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Folders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Items",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    ParentId = table.Column<int>(type: "integer", nullable: true),
+                    TenantId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Items", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExtractedText_Files_FileId",
-                        column: x => x.FileId,
-                        principalTable: "Files",
+                        name: "FK_Items_Folders_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Folders",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Items_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ItemCustomFieldValue",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ItemId = table.Column<int>(type: "integer", nullable: false),
+                    CustomFieldId = table.Column<int>(type: "integer", nullable: false),
+                    ValueBoolean = table.Column<bool>(type: "boolean", nullable: true),
+                    ValueDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ValueDouble = table.Column<double>(type: "double precision", nullable: true),
+                    ValueFreeText = table.Column<string>(type: "text", nullable: true),
+                    ValueInteger = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemCustomFieldValue", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ItemCustomFieldValue_CustomFields_CustomFieldId",
+                        column: x => x.CustomFieldId,
+                        principalTable: "CustomFields",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ItemCustomFieldValue_Items_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Items",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notes_Items_Id",
+                        column: x => x.Id,
+                        principalTable: "Items",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Shortcuts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    TargetId = table.Column<int>(type: "integer", nullable: false),
+                    PageNumber = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Shortcuts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Shortcuts_Items_Id",
+                        column: x => x.Id,
+                        principalTable: "Items",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Shortcuts_Items_TargetId",
+                        column: x => x.TargetId,
+                        principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -264,9 +430,9 @@ namespace DndTest.Data.Migrations
                 {
                     table.PrimaryKey("PK_SearchChunks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SearchChunks_Documents_DocumentId",
+                        name: "FK_SearchChunks_Notes_DocumentId",
                         column: x => x.DocumentId,
-                        principalTable: "Documents",
+                        principalTable: "Notes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -309,14 +475,35 @@ namespace DndTest.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Documents_FileId",
-                table: "Documents",
-                column: "FileId");
+                name: "IX_CustomFieldCondition_CustomFieldId",
+                table: "CustomFieldCondition",
+                column: "CustomFieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomFieldCondition_DependsOnCustomFieldId",
+                table: "CustomFieldCondition",
+                column: "DependsOnCustomFieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomFieldOption_CustomFieldConditionId",
+                table: "CustomFieldOption",
+                column: "CustomFieldConditionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomFieldOption_CustomFieldId",
+                table: "CustomFieldOption",
+                column: "CustomFieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomFieldOption_ItemCustomFieldValueId",
+                table: "CustomFieldOption",
+                column: "ItemCustomFieldValueId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmbeddingCache_TextHash_Model",
                 table: "EmbeddingCache",
-                columns: new[] { "TextHash", "Model" });
+                columns: new[] { "TextHash", "Model" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExtractedText_FileId",
@@ -324,9 +511,25 @@ namespace DndTest.Data.Migrations
                 column: "FileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_Hash",
-                table: "Files",
-                column: "Hash");
+                name: "IX_ItemCustomFieldValue_CustomFieldId",
+                table: "ItemCustomFieldValue",
+                column: "CustomFieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ItemCustomFieldValue_ItemId_CustomFieldId",
+                table: "ItemCustomFieldValue",
+                columns: new[] { "ItemId", "CustomFieldId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Items_ParentId",
+                table: "Items",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Items_TenantId",
+                table: "Items",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SearchChunks_DocumentId",
@@ -346,11 +549,51 @@ namespace DndTest.Data.Migrations
                 table: "SearchChunks",
                 column: "TextVector")
                 .Annotation("Npgsql:IndexMethod", "GIN");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shortcuts_TargetId",
+                table: "Shortcuts",
+                column: "TargetId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CustomFieldOption_ItemCustomFieldValue_ItemCustomFieldValue~",
+                table: "CustomFieldOption",
+                column: "ItemCustomFieldValueId",
+                principalTable: "ItemCustomFieldValue",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ExtractedText_Files_FileId",
+                table: "ExtractedText",
+                column: "FileId",
+                principalTable: "Files",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Files_Items_Id",
+                table: "Files",
+                column: "Id",
+                principalTable: "Items",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Folders_Items_Id",
+                table: "Folders",
+                column: "Id",
+                principalTable: "Items",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Folders_Items_Id",
+                table: "Folders");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -367,6 +610,9 @@ namespace DndTest.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CustomFieldOption");
+
+            migrationBuilder.DropTable(
                 name: "EmbeddingCache");
 
             migrationBuilder.DropTable(
@@ -374,6 +620,9 @@ namespace DndTest.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "SearchChunks");
+
+            migrationBuilder.DropTable(
+                name: "Shortcuts");
 
             migrationBuilder.DropTable(
                 name: "TikaCache");
@@ -385,10 +634,28 @@ namespace DndTest.Data.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Documents");
+                name: "CustomFieldCondition");
+
+            migrationBuilder.DropTable(
+                name: "ItemCustomFieldValue");
 
             migrationBuilder.DropTable(
                 name: "Files");
+
+            migrationBuilder.DropTable(
+                name: "Notes");
+
+            migrationBuilder.DropTable(
+                name: "CustomFields");
+
+            migrationBuilder.DropTable(
+                name: "Items");
+
+            migrationBuilder.DropTable(
+                name: "Folders");
+
+            migrationBuilder.DropTable(
+                name: "Tenants");
         }
     }
 }

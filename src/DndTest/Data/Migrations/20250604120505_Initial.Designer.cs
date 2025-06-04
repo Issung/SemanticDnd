@@ -11,11 +11,11 @@ using Pgvector;
 
 #nullable disable
 
-namespace DndTest.Data.Migrations
+namespace DndTest.Migrations
 {
     [DbContext(typeof(DndDbContext))]
-    [Migration("20250405085455_UniqueIndexForEmbeddingsCache")]
-    partial class UniqueIndexForEmbeddingsCache
+    [Migration("20250604120505_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,7 @@ namespace DndTest.Data.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DndTest.Data.Model.Document", b =>
+            modelBuilder.Entity("DndTest.Data.Model.Content.Item", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,15 +36,97 @@ namespace DndTest.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Items");
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomField", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CustomFields");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomFieldCondition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomFieldId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DependsOnCustomFieldId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomFieldId");
+
+                    b.HasIndex("DependsOnCustomFieldId");
+
+                    b.ToTable("CustomFieldCondition");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomFieldOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CustomFieldConditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CustomFieldId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemCustomFieldValueId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -52,9 +134,52 @@ namespace DndTest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FileId");
+                    b.HasIndex("CustomFieldConditionId");
 
-                    b.ToTable("Documents");
+                    b.HasIndex("CustomFieldId");
+
+                    b.HasIndex("ItemCustomFieldValueId");
+
+                    b.ToTable("CustomFieldOption");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.ItemCustomFieldValue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomFieldId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("ValueBoolean")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ValueDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("ValueDouble")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("ValueFreeText")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ValueInteger")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomFieldId");
+
+                    b.HasIndex("ItemId", "CustomFieldId")
+                        .IsUnique();
+
+                    b.ToTable("ItemCustomFieldValue");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.EmbeddingCache", b =>
@@ -97,8 +222,8 @@ namespace DndTest.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("FileId")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("PageNumber")
                         .HasColumnType("integer");
@@ -112,34 +237,6 @@ namespace DndTest.Data.Migrations
                     b.HasIndex("FileId");
 
                     b.ToTable("ExtractedText");
-                });
-
-            modelBuilder.Entity("DndTest.Data.Model.File", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Hash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("S3Key")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Hash");
-
-                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.SearchChunk", b =>
@@ -185,6 +282,23 @@ namespace DndTest.Data.Migrations
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("TextVector"), "GIN");
 
                     b.ToTable("SearchChunks");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Tenant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tenants");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.TikaCache", b =>
@@ -401,20 +515,138 @@ namespace DndTest.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DndTest.Data.Model.Document", b =>
+            modelBuilder.Entity("DndTest.Data.Model.Content.File", b =>
                 {
-                    b.HasOne("DndTest.Data.Model.File", "File")
+                    b.HasBaseType("DndTest.Data.Model.Content.Item");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("S3ObjectKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.ToTable("Files");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Folder", b =>
+                {
+                    b.HasBaseType("DndTest.Data.Model.Content.Item");
+
+                    b.ToTable("Folders");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Note", b =>
+                {
+                    b.HasBaseType("DndTest.Data.Model.Content.Item");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("Notes");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Shortcut", b =>
+                {
+                    b.HasBaseType("DndTest.Data.Model.Content.Item");
+
+                    b.Property<int?>("PageNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("integer");
+
+                    b.HasIndex("TargetId");
+
+                    b.ToTable("Shortcuts");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Item", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.Content.Folder", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.HasOne("DndTest.Data.Model.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("FileId")
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("File");
+                    b.Navigation("Parent");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomFieldCondition", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.CustomFields.CustomField", "CustomField")
+                        .WithMany("Conditions")
+                        .HasForeignKey("CustomFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DndTest.Data.Model.CustomFields.CustomField", "DependsOnCustomField")
+                        .WithMany("DependentConditions")
+                        .HasForeignKey("DependsOnCustomFieldId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CustomField");
+
+                    b.Navigation("DependsOnCustomField");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomFieldOption", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.CustomFields.CustomFieldCondition", null)
+                        .WithMany("RequiredOptions")
+                        .HasForeignKey("CustomFieldConditionId");
+
+                    b.HasOne("DndTest.Data.Model.CustomFields.CustomField", "CustomField")
+                        .WithMany("Options")
+                        .HasForeignKey("CustomFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DndTest.Data.Model.CustomFields.ItemCustomFieldValue", null)
+                        .WithMany("Values")
+                        .HasForeignKey("ItemCustomFieldValueId");
+
+                    b.Navigation("CustomField");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.ItemCustomFieldValue", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.CustomFields.CustomField", "CustomField")
+                        .WithMany()
+                        .HasForeignKey("CustomFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DndTest.Data.Model.Content.Item", "Item")
+                        .WithMany("CustomFieldValues")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CustomField");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.ExtractedText", b =>
                 {
-                    b.HasOne("DndTest.Data.Model.File", "File")
+                    b.HasOne("DndTest.Data.Model.Content.File", "File")
                         .WithMany()
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -425,7 +657,7 @@ namespace DndTest.Data.Migrations
 
             modelBuilder.Entity("DndTest.Data.Model.SearchChunk", b =>
                 {
-                    b.HasOne("DndTest.Data.Model.Document", "Document")
+                    b.HasOne("DndTest.Data.Model.Content.Note", "Document")
                         .WithMany()
                         .HasForeignKey("DocumentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -483,6 +715,79 @@ namespace DndTest.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.File", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.Content.Item", null)
+                        .WithOne()
+                        .HasForeignKey("DndTest.Data.Model.Content.File", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Folder", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.Content.Item", null)
+                        .WithOne()
+                        .HasForeignKey("DndTest.Data.Model.Content.Folder", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Note", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.Content.Item", null)
+                        .WithOne()
+                        .HasForeignKey("DndTest.Data.Model.Content.Note", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Shortcut", b =>
+                {
+                    b.HasOne("DndTest.Data.Model.Content.Item", null)
+                        .WithOne()
+                        .HasForeignKey("DndTest.Data.Model.Content.Shortcut", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DndTest.Data.Model.Content.Item", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Target");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Item", b =>
+                {
+                    b.Navigation("CustomFieldValues");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomField", b =>
+                {
+                    b.Navigation("Conditions");
+
+                    b.Navigation("DependentConditions");
+
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.CustomFieldCondition", b =>
+                {
+                    b.Navigation("RequiredOptions");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.CustomFields.ItemCustomFieldValue", b =>
+                {
+                    b.Navigation("Values");
+                });
+
+            modelBuilder.Entity("DndTest.Data.Model.Content.Folder", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

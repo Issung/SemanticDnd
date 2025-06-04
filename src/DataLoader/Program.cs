@@ -11,16 +11,24 @@ internal class Program
         var json = System.IO.File.ReadAllText("Priest.list.json");
         var data = System.Text.Json.JsonSerializer.Deserialize<SpellData>(json);
 
+        var battlefate = data.Spells.Single(s => s.Name == "Battlefate");
+
+        var converter = new ReverseMarkdown.Converter();
+
+        var markdown = converter.Convert(battlefate.Body.Replace("<br />", "<br /><br />"));
+
+        Console.WriteLine(markdown);
+
         return;
 
         await DndTest.Program.Main2(async app =>
         {
             var scope = app.Services.CreateScope();
-            var service = scope.ServiceProvider.GetRequiredService<DocumentService>();
+            var service = scope.ServiceProvider.GetRequiredService<NoteService>();
 
             foreach (var spell in data!.Spells)
             {
-                await service.UploadPlainText(spell.Name, Category.Spells, spell.ToString());
+                await service.UploadPlainText(spell.Name, spell.ToString());
             }
         });
     }

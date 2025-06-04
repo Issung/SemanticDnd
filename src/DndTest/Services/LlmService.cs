@@ -7,7 +7,7 @@ namespace DndTest.Services;
 public class LlmService(
     IHttpClientFactory httpClientFactory,
     DndSettings settings,
-    DocumentService documentService
+    NoteService documentService
 )
 {
     private static readonly JsonSerializerOptions jsonOptions = new()
@@ -17,15 +17,15 @@ public class LlmService(
 
     public async Task<IAsyncEnumerable<ResponsePart>> Question(string question)
     {
-        var chunks = await documentService.HybridSearch(question, null);
-
-        var documentsString = chunks
-            .Select((chunk, index) => $"""
-            ## {chunk.Document.Name} {(chunk.PageNumber == null ? string.Empty : $"(Page {chunk.PageNumber + 1})")}
-            
-            {chunk.Text}
-            """)
-            .StringJoin("\n\n");
+        //var chunks = await documentService.HybridSearch(question, null);
+        //
+        //var documentsString = chunks
+        //    .Select((chunk, index) => $"""
+        //    ## {chunk.Document.Name} {(chunk.PageNumber == null ? string.Empty : $"(Page {chunk.PageNumber + 1})")}
+        //    
+        //    {chunk.Text}
+        //    """)
+        //    .StringJoin("\n\n");
 
         var prompt = $"""
         You are a large language model assitant that helps a player with their 2nd Edition Dungeons & Dragons related questions.
@@ -39,7 +39,7 @@ public class LlmService(
 
         # Related Documents
 
-        {documentsString}
+        documentsStringHere
         """;
 
         // TODO: Return the relevant documents as a response item to be displayed on the UI.

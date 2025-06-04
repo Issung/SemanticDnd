@@ -1,3 +1,3 @@
 ﻿namespace DndTest.Api.Models.Response;
 
-public record DocumentsResponse(IAsyncEnumerable<Document> Documents);
+public record DocumentsResponse(IAsyncEnumerable<Item> Documents);

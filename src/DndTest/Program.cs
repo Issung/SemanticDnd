@@ -98,7 +98,7 @@ public class Program
             .AddSingleton<IAmazonS3>(s3Client)
             .AddSingleton<S3Service>()
             .AddScoped<SearchApi>()
-            .AddScoped<DocumentService>()
+            .AddScoped<NoteService>()
             .AddScoped<FileService>()
             .AddScoped<TikaService>()
             .AddScoped<LlmService>()
@@ -159,7 +159,7 @@ public class Program
         app.MapGet("/api/document/{id:int}", ([FromServices] DocumentApi api, [FromRoute] int id) => api.Get(id));
 
         app.MapPost("/api/tradsearch", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.TradSearch(request));
-        app.MapPost("/api/search", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.HybridSearch(request));
+        //app.MapPost("/api/search", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.HybridSearch(request));
 
         app.MapGet("/api/ssetest", (SseTestService sseTestService) => sseTestService.Test());
         app.MapGet("/api/question", async ([FromServices] LlmService llmService, [FromQuery] string question, HttpResponse response) =>

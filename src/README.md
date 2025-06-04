@@ -1,5 +1,8 @@
 https://medium.com/@masreis/text-extraction-and-ocr-with-apache-tika-302464895e5f
 
+## Database
+https://dbdiagram.io/d/CustomFields-6832b4bdb9f7446da305fa49
+
 ## Development
 Start the frontend SPA inside DndTest/App with `npm run dev` or open that folder in VS Code and launch it.
 Launch the backend code, it has a proxy to route you to the frontend, so open `https://localhost:7223/app/` in your browser.

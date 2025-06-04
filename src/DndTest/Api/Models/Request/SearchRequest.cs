@@ -5,7 +5,6 @@ namespace DndTest.Api.Models.Request;
 public class SearchRequest
 {
     public string? Query { get; set; }
-    public Category? Category { get; set; }
     //public SearchSort SortBy { get; set; } = SearchSort.Relevancy;
     //public SearchOrder? SortOrder { get; set; }
 }

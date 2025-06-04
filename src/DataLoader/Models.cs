@@ -44,14 +44,20 @@ public class Spell
     [JsonPropertyName("schools")]
     public string Schools { get; set; }
 
+    public string[] SchoolsSplit => Schools?.Split(", ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToArray() ?? [];
+
     [JsonPropertyName("spheres")]
     public string Spheres { get; set; }
+
+    public string[] SpheresSplit => Spheres?.Split(", ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToArray() ?? [];
 
     [JsonPropertyName("rng")]
     public string Range { get; set; }
 
     [JsonPropertyName("compo")]
     public string Components { get; set; }
+
+    public string[] ComponentsSplit => Components?.Split(", ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToArray() ?? [];
 
     [JsonPropertyName("dur")]
     public string Duration { get; set; }
