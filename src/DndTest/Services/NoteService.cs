@@ -4,8 +4,6 @@ using DndTest.Data.Model.Content;
 using DndTest.Helpers.Extensions;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using NpgsqlTypes;
 using Pgvector;
 using System.Text;
 
@@ -17,7 +15,41 @@ public class NoteService(
     FileService fileService
 )
 {
-    public async Task UploadPlainText(string name, string text)
+    public async Task Create(Note note)
+    {
+        dbContext.Notes.Add(note);
+
+        //var description = string.IsNullOrWhiteSpace(note.Description) ? string.Empty : $"\nDescription:\n{note.Description}";
+        //var body = string.IsNullOrWhiteSpace(note.Description) ? string.Empty : $"\Body:\n{note.Description}";
+        var fields = note.CustomFieldValues
+            .Select(cf =>
+            {
+                // TODO: Handle text output for all value types.
+                var values = cf.ValueInteger?.ToString() ?? string.Join(", ", cf.Values.Select(v => v.Name));
+                return $"* {cf.CustomField.Name}: {values}";
+            })
+            .StringJoin("\n");
+
+        var extractedText = new ExtractedText
+        {
+            PageNumber = null,
+            
+            // TODO: Handle Description being output in text.
+            Text = $"""
+            # {note.Name}
+            {fields}
+
+            {note.Content}
+            """,
+        };
+
+        //dbContext.ExtractedText.Add(extractedText);
+        dbContext.SearchChunks.AddRange(CreateSearchChunks(note, [extractedText]));
+        
+        //await dbContext.SaveChangesAsync();
+    }
+
+    /*public async Task UploadPlainText(string name, string text)
     {
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
 
@@ -43,10 +75,10 @@ public class NoteService(
         dbContext.ExtractedText.Add(extractedText);
         await dbContext.SaveChangesAsync();
 
-        await CreateSearchChunks(note.Id, [extractedText]);
-    }
+        await CreateSearchChunks(note, [extractedText]);
+    }*/
 
-    public async Task<IReadOnlyList<ExtractedText>> ChunkTikaResponse(int fileId, TikaResponse response)
+    /*public async Task<IReadOnlyList<ExtractedText>> ChunkTikaResponse(int fileId, TikaResponse response)
     {
         var doc = new HtmlDocument();
         doc.LoadHtml(response.Content);
@@ -66,33 +98,31 @@ public class NoteService(
             Text = text,
         }).ToArray();
 
-        dbContext.ExtractedText.AddRange(chunks);
+        //dbContext.ExtractedText.AddRange(chunks);
+
+        dbContext.SearchChunks.AddRange(CreateSearchChunks(fileId, chunks));
 
         await dbContext.SaveChangesAsync();
 
         return chunks;
-    }
+    }*/
 
-    public async Task CreateSearchChunks(int documentId, IReadOnlyList<ExtractedText> extractedTexts)
+    public SearchChunk[] CreateSearchChunks(Item item, IReadOnlyList<ExtractedText> extractedTexts)
     {
-        foreach (var extractedText in extractedTexts)
+        return extractedTexts.Select(extractedText =>
         {
             //var embeddings = await embeddingsService.GetEmbeddingForText(extractedText.Text);
             var embeddings = new Vector(Enumerable.Repeat(0f, 768).ToArray());
 
-            var searchChunk = new SearchChunk()
+            return new SearchChunk()
             {
-                DocumentId = documentId,
+                Item = item,
                 Text = extractedText.Text,
                 EmbeddingVector = embeddings,
                 //EmbeddingVector = embeddings.Vector,
                 PageNumber = extractedText.PageNumber,
             };
-
-            dbContext.SearchChunks.Add(searchChunk);
-        }
-
-        await dbContext.SaveChangesAsync();
+        }).ToArray();
     }
 
     private static readonly string[] stopwords = {
@@ -123,18 +153,18 @@ public class NoteService(
         var hasTextQuery = !string.IsNullOrWhiteSpace(textQuery);
 
         var searchQuery = dbContext.SearchChunks
-            .Include(sc => sc.Document)
+            .Include(sc => sc.Item)
             .Where(sc => !hasTextQuery || sc.TextVector.Matches(EF.Functions.ToTsQuery(textQuery)));
 
         if (hasTextQuery)
         {
             searchQuery = searchQuery
-                .OrderByDescending(sc => EF.Functions.ILike(sc.Document.Name, $"%{query}%"))
+                .OrderByDescending(sc => EF.Functions.ILike(sc.Item.Name, $"%{query}%"))
                 .ThenByDescending(sc => sc.TextVector.Rank(EF.Functions.ToTsQuery(textQuery)));
         }
         else
         {
-            searchQuery = searchQuery.OrderBy(sc => sc.Document.Name);
+            searchQuery = searchQuery.OrderBy(sc => sc.Item.Name);
         }
 
         var results = await searchQuery

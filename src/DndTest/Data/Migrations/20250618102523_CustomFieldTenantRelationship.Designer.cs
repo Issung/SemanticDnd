@@ -3,6 +3,7 @@ using System;
 using DndTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -10,12 +11,14 @@ using Pgvector;
 
 #nullable disable
 
-namespace DndTest.Migrations
+namespace DndTest.Data.Migrations
 {
     [DbContext(typeof(DndDbContext))]
-    partial class DndDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618102523_CustomFieldTenantRelationship")]
+    partial class CustomFieldTenantRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,12 +262,12 @@ namespace DndTest.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("integer");
+
                     b.Property<Vector>("EmbeddingVector")
                         .IsRequired()
                         .HasColumnType("vector(768)");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("PageNumber")
                         .HasColumnType("integer");
@@ -281,13 +284,13 @@ namespace DndTest.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DocumentId");
+
                     b.HasIndex("EmbeddingVector")
                         .HasAnnotation("Npgsql:StorageParameter:lists", 100);
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_l2_ops" });
-
-                    b.HasIndex("ItemId");
 
                     b.HasIndex("TextVector");
 
@@ -691,13 +694,13 @@ namespace DndTest.Migrations
 
             modelBuilder.Entity("DndTest.Data.Model.SearchChunk", b =>
                 {
-                    b.HasOne("DndTest.Data.Model.Content.Item", "Item")
+                    b.HasOne("DndTest.Data.Model.Content.Note", "Document")
                         .WithMany()
-                        .HasForeignKey("ItemId")
+                        .HasForeignKey("DocumentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Item");
+                    b.Navigation("Document");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

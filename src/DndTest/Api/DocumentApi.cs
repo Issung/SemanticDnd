@@ -1,5 +1,6 @@
 ﻿using DndTest.Api.Models.Response;
 using DndTest.Data;
+using DndTest.Data.Model.Content;
 using DndTest.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,13 +13,13 @@ public class DocumentApi(
 {
     public DocumentsResponse GetAll()
     {
-        var e = dbContext.Items.Select(i => new Item(i)).AsAsyncEnumerable();
+        var e = dbContext.Items.Select(i => new Models.Response.Item(i)).AsAsyncEnumerable();
         return new(e);
     }
 
     public async Task<DocumentResponse> Get(int id)
     {
-        var doc = await dbContext.Items
+        var item = await dbContext.Items
             .Include(i => i.Parent)
             .Include(i => i.CustomFieldValues)
                 .ThenInclude(c => c.CustomField)
@@ -26,9 +27,9 @@ public class DocumentApi(
                 .ThenInclude(c => c.Values)
             .SingleAsync(d => d.Id == id);
 
-        var fileUrl = await MaybeGetFileUrl(doc);
+        var fileUrl = await MaybeGetFileUrl(item);
 
-        return new(new Item(doc) { FileAccessUrl = fileUrl });
+        return new(new Models.Response.Item(item) { FileAccessUrl = fileUrl, Text = item is Note note ? note.Content : null });
     }
 
     private async Task<Uri?> MaybeGetFileUrl(Data.Model.Content.Item doc)

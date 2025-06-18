@@ -93,6 +93,7 @@ public class Program
 
         builder.Services
             .AddFrontendSpa(settings)
+            .AddScoped<CustomFieldService>()
             .AddScoped<DocumentApi>()
             .AddScoped<EmbeddingsService>()
             .AddSingleton<IAmazonS3>(s3Client)

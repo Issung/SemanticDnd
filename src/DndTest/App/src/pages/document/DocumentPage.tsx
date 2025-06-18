@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from '@tanstack/react-router'
 import { useDocument } from '@/hooks/api/useDocument';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function DocumentPage() {
     const { id } = useParams({ strict: false }) // will be typed later with route param
@@ -48,6 +50,7 @@ export default function DocumentPage() {
                 <div>
                     <h1>{data.document.name}</h1>
                     <p>{data.document.text}</p>
+                    {data.document.text && <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.document.text}</ReactMarkdown>}
                     {data.document.fileAccessUrl && (
                         <>
                             <a href={data.document.fileAccessUrl} target="_blank" rel="noopener noreferrer">

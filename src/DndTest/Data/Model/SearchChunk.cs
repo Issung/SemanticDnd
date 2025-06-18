@@ -10,8 +10,8 @@ public class SearchChunk
 {
     public int Id { get; set; }
 
-    public int DocumentId { get; set; }
-    public Note Document { get; set; } = null!;
+    public int ItemId { get; set; }
+    public Item Item { get; set; } = null!;
 
     public string Text { get; set; } = null!;
 

@@ -12,8 +12,8 @@ public class SearchHit
 
     public SearchHit(SearchChunk chunk)
     {
-        this.Name = chunk.Document.Name;
-        this.DocumentId = chunk.DocumentId;
+        this.Name = chunk.Item.Name;
+        this.DocumentId = chunk.ItemId;
         this.PageNumber = chunk.PageNumber;
     }
 }

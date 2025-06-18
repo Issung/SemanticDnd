@@ -4,9 +4,13 @@ public class CustomField
 {
     public int Id { get; set; }
 
+    public Tenant Tenant { get; set; } = default!;
+    public int TenantId { get; set; }
+
     public string Name { get; set; } = default!;
     
     public CustomFieldType Type { get; set; }
+
 
     /// <summary>
     /// Only used for the SingleChoice, MultiChoice (and possibly MultiValue) types.

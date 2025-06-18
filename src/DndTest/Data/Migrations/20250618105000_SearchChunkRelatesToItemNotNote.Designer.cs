@@ -3,6 +3,7 @@ using System;
 using DndTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -10,12 +11,14 @@ using Pgvector;
 
 #nullable disable
 
-namespace DndTest.Migrations
+namespace DndTest.Data.Migrations
 {
     [DbContext(typeof(DndDbContext))]
-    partial class DndDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618105000_SearchChunkRelatesToItemNotNote")]
+    partial class SearchChunkRelatesToItemNotNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

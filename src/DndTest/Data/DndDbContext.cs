@@ -35,7 +35,7 @@ public class DndDbContext(
     {
         base.OnConfiguring(optionsBuilder);
 
-        var cs = "Host=localhost;Port=5432;Database=dndtest;Username=postgres;Password=password";
+        var cs = "Host=localhost;Port=5432;Database=dndtest;Username=postgres;Password=password;Include Error Detail=true;";
 
         optionsBuilder.UseNpgsql(cs, o => o.UseVector());
 

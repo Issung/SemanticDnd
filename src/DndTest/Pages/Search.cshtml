@@ -20,7 +20,7 @@
     @foreach (var result in Model.Results)
     {
         <li>
-            <a href=@($"/Document?Id={result.DocumentId}")>@($"{result.Document.Name} {(result.PageNumber == null ? string.Empty : $"(Page {result.PageNumber + 1})")}") </a>
+            <a href=@($"/Document?Id={result.ItemId}")>@($"{result.Item.Name} {(result.PageNumber == null ? string.Empty : $"(Page {result.PageNumber + 1})")}") </a>
         </li>
     }
 </ul>
