@@ -46,10 +46,16 @@ public class Spell
 
     public string[] SchoolsSplit => Schools?.Split(", ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToArray() ?? [];
 
+    /// <summary>
+    /// Not present in wizard list.
+    /// </summary>
     [JsonPropertyName("spheres")]
-    public string Spheres { get; set; }
+    public string? Spheres { get; set; }
 
-    public string[] SpheresSplit => Spheres?.Split(", ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToArray() ?? [];
+    /// <summary>
+    /// Not present in wizard list.
+    /// </summary>
+    public string[]? SpheresSplit => Spheres?.Split(", ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToArray();
 
     [JsonPropertyName("rng")]
     public string Range { get; set; }

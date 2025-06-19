@@ -1,5 +1,4 @@
 ﻿using DndTest.Data;
-using DndTest.Data.Model;
 using DndTest.Data.Model.Content;
 using DndTest.Data.Model.CustomFields;
 using DndTest.Services;
@@ -10,21 +9,26 @@ namespace DataLoader;
 
 internal class Program
 {
-    // AOE = free text
-    // Book = 
+    /*
+     * Wipe database tables altered by this loader:
+
+TRUNCATE TABLE "CustomFieldOption" RESTART IDENTITY CASCADE;
+TRUNCATE TABLE "CustomFieldCondition" RESTART IDENTITY CASCADE;
+TRUNCATE TABLE "CustomFields" RESTART IDENTITY CASCADE;
+TRUNCATE TABLE "Notes" RESTART IDENTITY CASCADE;
+TRUNCATE TABLE "Items" RESTART IDENTITY CASCADE;
+TRUNCATE TABLE "SearchChunks" RESTART IDENTITY CASCADE;
+    */
 
     static async Task Main(string[] args)
     {
-        var json = System.IO.File.ReadAllText("Priest.list.json");
-        var data = System.Text.Json.JsonSerializer.Deserialize<SpellData>(json);
+        return; // Data already loaded.
 
-        var battlefate = data.Spells.Single(s => s.Name == "Battlefate");
+        var priestData = System.Text.Json.JsonSerializer.Deserialize<SpellData>(System.IO.File.ReadAllText("Priest.list.json"))!;
+        var wizardData = System.Text.Json.JsonSerializer.Deserialize<SpellData>(System.IO.File.ReadAllText("Wizard.list.json"))!;
 
         var converter = new ReverseMarkdown.Converter();
-
-        var markdown = converter.Convert(battlefate.Body.Replace("<br />", "<br /><br />"));
-
-        Console.WriteLine(markdown);
+        var allSpells = priestData.Spells.Concat(wizardData.Spells);
 
         var spellTypeOption = new CustomFieldOption { Name = "Spell" };
 
@@ -39,10 +43,30 @@ internal class Program
             ],
         };
 
+        var wizard = new CustomFieldOption { Name = "Wizard" };
+        var priest= new CustomFieldOption { Name = "Priest" };
+
+        var classCf = new CustomField()
+        {
+            Name = "Class",
+            Type = CustomFieldType.SingleChoice,
+            Options = [
+                wizard,
+                priest,
+            ],
+            Conditions = [
+                new CustomFieldCondition
+                {
+                    DependsOnCustomField = type,
+                    RequiredOptions = [spellTypeOption],
+                }
+            ],
+        };
+
         var book = new CustomField()
         {
             Name = "Book",
-            Options = data.Spells.Select(s => s.Book).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.Select(s => s.Book).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.SingleChoice,
             Conditions = [
                 new CustomFieldCondition
@@ -56,7 +80,7 @@ internal class Program
         var schools = new CustomField()
         {
             Name = "Schools",
-            Options = data.Spells.SelectMany(s => s.SchoolsSplit).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.SelectMany(s => s.SchoolsSplit).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.MultiChoice,
             Conditions = [
                 new CustomFieldCondition
@@ -70,7 +94,7 @@ internal class Program
         var spheres = new CustomField()
         {
             Name = "Spheres",
-            Options = data.Spells.SelectMany(s => s.SpheresSplit).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.SelectMany(s => s.SpheresSplit ?? []).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.MultiChoice,
             Conditions = [
                 new CustomFieldCondition
@@ -84,7 +108,7 @@ internal class Program
         var range = new CustomField()
         {
             Name = "Range",
-            Options = data.Spells.SelectMany(s => s.SpheresSplit).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.Select(s => s.Range).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.SingleValue,
             Conditions = [
                 new CustomFieldCondition
@@ -98,7 +122,7 @@ internal class Program
         var components = new CustomField()
         {
             Name = "Components",
-            Options = data.Spells.SelectMany(s => s.ComponentsSplit).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.SelectMany(s => s.ComponentsSplit).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.MultiChoice,
             Conditions = [
                 new CustomFieldCondition
@@ -112,7 +136,7 @@ internal class Program
         var duration = new CustomField()
         {
             Name = "Duration",
-            Options = data.Spells.Select(s => s.Duration).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.Select(s => s.Duration).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.SingleValue,
             Conditions = [
                 new CustomFieldCondition
@@ -126,7 +150,7 @@ internal class Program
         var castingTime = new CustomField()
         {
             Name = "Casting Time",
-            Options = data.Spells.Select(s => s.CastingTime).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.Select(s => s.CastingTime).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.SingleValue,
             Conditions = [
                 new CustomFieldCondition
@@ -140,7 +164,7 @@ internal class Program
         var aoe = new CustomField()
         {
             Name = "Area of Effect",
-            Options = data.Spells.Select(s => s.AreaOfEffect).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.Select(s => s.AreaOfEffect).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.SingleValue,
             Conditions = [
                 new CustomFieldCondition
@@ -154,7 +178,7 @@ internal class Program
         var savingThrow = new CustomField()
         {
             Name = "Saving Throw",
-            Options = data.Spells.Select(s => s.SavingThrow).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
+            Options = allSpells.Select(s => s.SavingThrow).Distinct().Select(v => new CustomFieldOption { Name = v }).ToList(),
             Type = CustomFieldType.SingleValue,
             Conditions = [
                 new CustomFieldCondition
@@ -183,6 +207,11 @@ internal class Program
             type,
 
             // Dependents:
+
+            // From us - either Wizard or Priest.
+            classCf,
+
+            // From JSON files.
             aoe,
             book,
             castingTime,
@@ -195,11 +224,12 @@ internal class Program
             spheres,
         ];
 
-        var notes = data.Spells.Select(spell => new Note()
+        var notes = allSpells.Select(spell => new Note()
         {
             Name = spell.Name,
             Content = converter.Convert(spell.Body.Replace("<br />", "<br /><br />")),
-            CustomFieldValues = [
+            CustomFieldValues = new[] {
+                Cf(classCf, priestData.Spells.Contains(spell) ? "Priest" : "Wizard"),
                 Cf(aoe, spell.AreaOfEffect),
                 Cf(book, spell.Book),
                 Cf(castingTime, spell.CastingTime),
@@ -209,9 +239,9 @@ internal class Program
                 Cf(range, spell.Range),
                 Cf(savingThrow, spell.SavingThrow),
                 Cf(schools, spell.SchoolsSplit),
-                Cf(spheres, spell.SpheresSplit),
+                spell.SpheresSplit == null ? null : Cf(spheres, spell.SpheresSplit),
                 new ItemCustomFieldValue() { CustomField = type, Values = [spellTypeOption] },
-            ],
+            }.OfType<ItemCustomFieldValue>().ToList(),  // Remove nulls (Spheres may be null).
         }).ToArray();
 
         //return;
