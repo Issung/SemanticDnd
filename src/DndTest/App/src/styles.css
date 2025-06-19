@@ -17,7 +17,11 @@ code {
 }
 
 div#content {
+    /* Margins on top & bottom so that header/footer don't get in way of content. */
     margin-top: var(--barheight);
+    margin-bottom: var(--barheight);
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 div#header {
@@ -69,5 +73,32 @@ div#footer {
         &:not(:last-child) {
             border-right: 1px solid grey;
         }
+    }
+}
+
+table {
+    width: 100%;
+
+    tr:nth-child(odd)
+    {
+        background-color: #181818;
+    }
+
+    tr:nth-child(even)
+    {
+        background-color: #151515;
+    }
+
+    td
+    {
+        &:nth-child(1) {
+            font-weight: 400;
+        }
+
+        &:nth-child(2) {
+            font-weight: 100;
+        }
+
+        padding: 2px 10px 2px 10px;
     }
 }
