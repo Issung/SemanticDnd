@@ -3,6 +3,7 @@ import { useParams } from '@tanstack/react-router'
 import { useDocument } from '@/hooks/api/useDocument';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { CustomFields } from '@/components/CustomFields';
 
 export default function DocumentPage() {
     const { id } = useParams({ strict: false }) // will be typed later with route param
@@ -49,7 +50,7 @@ export default function DocumentPage() {
             {data && (
                 <div>
                     <h1>{data.document.name}</h1>
-                    <p>{data.document.text}</p>
+                    <CustomFields fields={data.document.customFields}/>
                     {data.document.text && <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.document.text}</ReactMarkdown>}
                     {data.document.fileAccessUrl && (
                         <>

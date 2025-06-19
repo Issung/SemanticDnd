@@ -23,6 +23,8 @@ public class Item
 
     public Uri? FileAccessUrl { get; set; }
 
+    public IEnumerable<CustomField> CustomFields { get; set; } = default!;
+
     public Item(Data.Model.Content.Item item)
     {
         Id = item.Id;
@@ -30,5 +32,12 @@ public class Item
         Description = item.Description;
         CreatedAt = item.CreatedAt;
         UpdatedAt = item.UpdatedAt;
+        Text = item is Note note ? note.Content : null;
+        CustomFields = item.CustomFieldValues.Select(cf => new CustomField
+        {
+            Name = cf.CustomField.Name,
+            ValueInteger = cf.ValueInteger,
+            Values = cf.Values.Select(v => v.Name),
+        });
     }
 }

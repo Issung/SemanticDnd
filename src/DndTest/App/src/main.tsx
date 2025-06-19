@@ -43,7 +43,7 @@ const rootRoute = createRootRoute({
                     </div>
                 </Box>
                 <Footer />
-                <TanStackRouterDevtools />
+                {/* <TanStackRouterDevtools /> */}
             </ThemeProvider>
         </>
     ),

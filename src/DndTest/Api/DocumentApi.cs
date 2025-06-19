@@ -13,7 +13,14 @@ public class DocumentApi(
 {
     public DocumentsResponse GetAll()
     {
-        var e = dbContext.Items.Select(i => new Models.Response.Item(i)).AsAsyncEnumerable();
+        var e = dbContext.Items
+            .Include(i => i.CustomFieldValues)
+                .ThenInclude(c => c.CustomField)
+            .Include(i => i.CustomFieldValues)
+                .ThenInclude(c => c.Values)
+            .Select(i => new Models.Response.Item(i))
+            .AsAsyncEnumerable();
+
         return new(e);
     }
 
@@ -29,7 +36,14 @@ public class DocumentApi(
 
         var fileUrl = await MaybeGetFileUrl(item);
 
-        return new(new Models.Response.Item(item) { FileAccessUrl = fileUrl, Text = item is Note note ? note.Content : null });
+        var model = new Models.Response.Item(item)
+        {
+            FileAccessUrl = fileUrl,
+            
+            Text = item is Note note ? note.Content : null
+        };
+
+        return new(model);
     }
 
     private async Task<Uri?> MaybeGetFileUrl(Data.Model.Content.Item doc)

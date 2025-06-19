@@ -5,8 +5,15 @@ export interface Document {
     name: string;
     category: Category;
     createdAt: string; // comes as ISO string
+    customFields: Array<CustomField>;
     text: string | undefined;
     fileAccessUrl: string | undefined;
+}
+
+export interface CustomField {
+    name: string;
+    valueInteger: number | undefined;
+    values: Array<string>;
 }
 
 export interface DocumentResponse {
