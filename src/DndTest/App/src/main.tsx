@@ -85,7 +85,10 @@ const contentRoute = createRoute({
 const searchRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/search',
-    component: SearchPage
+    component: SearchPage,
+    validateSearch: (search) => ({
+        query: typeof search.query === 'string' ? search.query : '',
+    }),
 });
 
 const settingsRoute = createRoute({
