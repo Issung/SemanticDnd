@@ -1,16 +1,13 @@
-import React from "react";
-import { Box, Divider, List, ListItem, ListItemText, Typography } from "@mui/material";
-import { useNavigate } from "@tanstack/react-router";
 import type { SearchHit } from "@/hooks/api/responses";
+import { Divider, List, ListItem, ListItemText, Typography } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
+import React from "react";
 
 const ItemList = ({ hits }: { hits: Array<SearchHit> }) => {
     const navigate = useNavigate();
 
     return (
         <>
-            <Typography variant="h5" gutterBottom>
-                Item List
-            </Typography>
             <List>
                 {hits.map((hit, index) => (
                     <React.Fragment key={hit.documentId + '-' + hit.pageNumber}>

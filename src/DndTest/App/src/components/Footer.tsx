@@ -1,8 +1,7 @@
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import FolderIcon from '@mui/icons-material/Folder';
-import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
 import ButtonBase from "@mui/material/ButtonBase";
-import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import { useNavigate } from "@tanstack/react-router";
 
 export const Footer = () => {
@@ -12,7 +11,7 @@ export const Footer = () => {
         <ButtonBase onClick={() => navigate({to: '/content'})}>
             <FolderIcon htmlColor='white'/>
         </ButtonBase>
-        <ButtonBase onClick={() => navigate({to: '/search'})}>
+        <ButtonBase onClick={() => navigate({to: '/search', search: { query: "" }})}>
             <SearchIcon htmlColor='white'/>
         </ButtonBase>
         <ButtonBase onClick={() => navigate({to: '/bookmarks'})}>

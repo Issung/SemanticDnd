@@ -38,6 +38,7 @@ public class Program
         {
             Frontend =
             {
+                //RootPath = "./App/dist"
                 SpaProxyAddress = "http://localhost:3000/",
             }
         };

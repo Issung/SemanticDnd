@@ -81,9 +81,12 @@ public static class FrontendConfig
     /// </summary>
     private static void MaybeAddSpaReverseProxy(this IServiceCollection services, FrontendSettings settings)
     {
-        services
-            .AddReverseProxy()
-            .LoadFromMemory(SpaProxyRoutesMap, BuildSpaProxyClusterConfigs(settings));
+        if (settings.SpaProxyAddress != null)
+        {
+            services
+                .AddReverseProxy()
+                .LoadFromMemory(SpaProxyRoutesMap, BuildSpaProxyClusterConfigs(settings));
+        }
     }
 
     private static string GetAndValidateSpaRootPath(FrontendSettings settings)
