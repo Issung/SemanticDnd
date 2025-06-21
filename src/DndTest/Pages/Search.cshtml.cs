@@ -1,12 +1,10 @@
 using DndTest.Data.Model;
-using DndTest.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DndTest.Pages;
 
 public class SearchModel(
-    NoteService documentService
 ) : PageModel
 {
     [BindProperty(SupportsGet = true)]

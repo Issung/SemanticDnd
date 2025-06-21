@@ -1,5 +1,5 @@
 import type { SearchHit } from "@/hooks/api/responses";
-import { Divider, List, ListItem, ListItemText, Typography } from "@mui/material";
+import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import React from "react";
 
@@ -10,11 +10,11 @@ const ItemList = ({ hits }: { hits: Array<SearchHit> }) => {
         <>
             <List>
                 {hits.map((hit, index) => (
-                    <React.Fragment key={hit.documentId + '-' + hit.pageNumber}>
+                    <React.Fragment key={hit.itemId + '-' + hit.pageNumber}>
                         <ListItem
                             onClick={() => navigate({
-                                to: '/document/$id',
-                                params: { id: hit.documentId }
+                                to: '/item/$id',
+                                params: { id: hit.itemId }
                             })}
                             sx={{
                                 cursor: 'pointer', // Show pointer cursor

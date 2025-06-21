@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useParams } from '@tanstack/react-router'
-import { useDocument } from '@/hooks/api/useDocument';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CustomFields } from '@/components/CustomFields';
+import { useItem } from '@/hooks/api/useItem';
 
-export default function DocumentPage() {
+export default function ItemPage() {
     const { id } = useParams({ strict: false }) // will be typed later with route param
-    const { data, isPending, isError } = useDocument(id!);
+    const { data, isPending, isError } = useItem(id!);
     const [fileType, setFileType] = useState<null | 'text' | 'image' | 'pdf'>(null);
     const [fileContent, setFileContent] = useState<string | Blob | null>(null);
     const [fileError, setFileError] = useState<string | null>(null);
 
     useEffect(() => {
         const load = async () => {
-            if (data?.document.fileAccessUrl) {
+            if (data?.item.fileAccessUrl) {
                 setFileContent(null);
                 setFileError(null);
-                const res = await fetch(data.document.fileAccessUrl);
+                const res = await fetch(data.item.fileAccessUrl);
 
                 if (!res.ok) {
                     setFileError('Failed to fetch file. Status: ' + res.status);
@@ -41,20 +41,20 @@ export default function DocumentPage() {
         }
 
         load();
-    }, [data?.document.fileAccessUrl]);
+    }, [data?.item.fileAccessUrl]);
 
     return <>
         <div>
             {isPending && <p>Loading...</p>}
-            {isError && <p>Error loading document</p>}
+            {isError && <p>Error loading item</p>}
             {data && (
                 <div>
-                    <h1>{data.document.name}</h1>
-                    <CustomFields fields={data.document.customFields}/>
-                    {data.document.text && <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.document.text}</ReactMarkdown>}
-                    {data.document.fileAccessUrl && (
+                    <h1>{data.item.name}</h1>
+                    <CustomFields fields={data.item.customFields}/>
+                    {data.item.text && <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.item.text}</ReactMarkdown>}
+                    {data.item.fileAccessUrl && (
                         <>
-                            <a href={data.document.fileAccessUrl} target="_blank" rel="noopener noreferrer">
+                            <a href={data.item.fileAccessUrl} target="_blank" rel="noopener noreferrer">
                                 Download File
                             </a>
                             <div style={{ marginTop: '1em' }}>

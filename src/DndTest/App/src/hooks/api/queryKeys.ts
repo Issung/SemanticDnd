@@ -1,4 +1,4 @@
 export class QueryKeys {
-    public static documents = 'documents';
+    public static items = 'items';
     public static search = 'search';
 } 

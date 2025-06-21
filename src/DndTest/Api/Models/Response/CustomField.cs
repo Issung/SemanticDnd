@@ -2,6 +2,7 @@
 
 public class CustomField
 {
+    public required int Id { get; set; }
     public required string Name { get; set; }
 
     // TODO: Implement other custom field types.

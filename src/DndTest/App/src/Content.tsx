@@ -1,15 +1,15 @@
-import { useDocuments } from "./hooks/api/useDocuments"
+import { useItems } from "./hooks/api/useItems"
 
 export const Content = () => {
-    const {data, isPending, isError} = useDocuments();
+    const {data, isPending, isError} = useItems();
 
     return (
         isPending ? "Loading..." :
         isError ? "Error" : 
-        data.documents.map((document) => (
-            <div key={document.id}>
-                <h2>{document.name}</h2>
-                <p>{document.category}</p>
+        data.items.map((item) => (
+            <div key={item.id}>
+                <h2>{item.name}</h2>
+                <p>{item.category}</p>
             </div>
         ))
     );

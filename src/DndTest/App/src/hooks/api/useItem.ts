@@ -1,15 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useConfigContext } from "../configContext";
 import { QueryKeys } from "./queryKeys";
-import type { DocumentsResponse } from "./responses";
+import type { ItemResponse } from "./responses";
 
-export function useDocuments() {
+export function useItem(id: number) {
     const { apiBaseUrl } = useConfigContext();
     
+    if (typeof id !== 'number' || isNaN(id)) {
+        throw new Error(`Item id '${id}' is not valid.`);
+    }
+
     return useQuery({
-        queryKey: [QueryKeys.documents],
+        queryKey: [QueryKeys.items, id],
         queryFn: async () => {
-            const response = await fetch(`${apiBaseUrl}/documents`, {
+            const response = await fetch(`${apiBaseUrl}/item/${id}`, {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json'
@@ -17,10 +21,10 @@ export function useDocuments() {
             })
             
             if (!response.ok) {
-                throw new Error(`Failed to fetch documents: ${response.status}`);
+                throw new Error(`Failed to fetch item ${id}: ${response.status}`);
             }
 
-            const data: DocumentsResponse = await response.json();
+            const data: ItemResponse = await response.json();
             return data;
         },
     });

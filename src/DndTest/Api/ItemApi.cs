@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DndTest.Api;
 
-public class DocumentApi(
+public class ItemApi(
     DndDbContext dbContext,
     S3Service s3Service
 )
 {
-    public DocumentsResponse GetAll()
+    public ItemsResponse GetAll()
     {
         var e = dbContext.Items
             .Include(i => i.CustomFieldValues)
@@ -24,7 +24,7 @@ public class DocumentApi(
         return new(e);
     }
 
-    public async Task<DocumentResponse> Get(int id)
+    public async Task<ItemResponse> Get(int id)
     {
         var item = await dbContext.Items
             .Include(i => i.Parent)

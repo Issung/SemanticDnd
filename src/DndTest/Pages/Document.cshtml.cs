@@ -1,19 +1,12 @@
 using DndTest.Data;
-using DndTest.Data.Model;
-using DndTest.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace DndTest.Pages;
 
 public class DocumentModel(
-    ILogger<DocumentModel> logger,
-    DndDbContext dbContext,
-    FileService fileService,
-    TikaService tikaService,
-    NoteService documentService
+    DndDbContext dbContext
 ) : PageModel
 {
     [BindProperty(SupportsGet = true)]

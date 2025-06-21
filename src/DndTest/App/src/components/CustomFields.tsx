@@ -3,7 +3,9 @@ import type { CustomField as CustomFieldModel } from "@/hooks/api/responses";
 export function CustomFields({fields}: {fields: Array<CustomFieldModel>}) {
     return (
         <table className="CustomFields">
-            {fields.map(f => <CustomField field={f}/>)}
+            <tbody>
+                {fields.map(f => <CustomField field={f} key={f.id}/>)}
+            </tbody>
         </table>
     );
 }

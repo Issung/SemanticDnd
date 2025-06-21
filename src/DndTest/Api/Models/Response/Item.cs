@@ -35,6 +35,7 @@ public class Item
         Text = item is Note note ? note.Content : null;
         CustomFields = item.CustomFieldValues.Select(cf => new CustomField
         {
+            Id = cf.Id,
             Name = cf.CustomField.Name,
             ValueInteger = cf.ValueInteger,
             Values = cf.Values.Select(v => v.Name),

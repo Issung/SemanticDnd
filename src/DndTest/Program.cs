@@ -96,7 +96,7 @@ public class Program
             .AddFrontendSpa(settings)
             .AddScoped<SearchService>()
             .AddScoped<CustomFieldService>()
-            .AddScoped<DocumentApi>()
+            .AddScoped<ItemApi>()
             .AddScoped<EmbeddingsService>()
             .AddSingleton<IAmazonS3>(s3Client)
             .AddSingleton<S3Service>()
@@ -158,8 +158,8 @@ public class Program
 
     private static void MapEndpoints(WebApplication app)
     {
-        app.MapGet("/api/documents", ([FromServices] DocumentApi api) => api.GetAll());
-        app.MapGet("/api/document/{id:int}", ([FromServices] DocumentApi api, [FromRoute] int id) => api.Get(id));
+        app.MapGet("/api/items", ([FromServices] ItemApi api) => api.GetAll());
+        app.MapGet("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Get(id));
 
         app.MapPost("/api/tradsearch", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.TradSearch(request));
         //app.MapPost("/api/search", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.HybridSearch(request));

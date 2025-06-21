@@ -19,7 +19,7 @@ import { Footer } from './components/Footer.tsx';
 import Header from './components/Header.tsx';
 import { Content } from './Content.tsx';
 import { Home } from './Home.tsx';
-import DocumentPage from './pages/document/DocumentPage.tsx';
+import ItemPage from './pages/item/ItemPage.tsx';
 import SearchPage from './pages/search/SearchPage.tsx';
 import reportWebVitals from './reportWebVitals.ts';
 import './styles.css';
@@ -54,15 +54,15 @@ const indexRoute = createRoute({
     component: App,
 })
 
-const documentRoute = createRoute({
+const itemRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/document/$id',
-    component: DocumentPage,
+    path: '/item/$id',
+    component: ItemPage,
     parseParams: ({ id }) => {
         const parsedId = parseInt(id)
         if (isNaN(parsedId))
         {
-            throw new Error('Invalid document ID')
+            throw new Error('Invalid item ID')
         }
         return { id: parsedId }
     },
@@ -96,7 +96,7 @@ const settingsRoute = createRoute({
     component: Bookmarks
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, documentRoute, homeRoute, contentRoute, settingsRoute, searchRoute])
+const routeTree = rootRoute.addChildren([indexRoute, itemRoute, homeRoute, contentRoute, settingsRoute, searchRoute])
 
 const router = createRouter({
     routeTree,

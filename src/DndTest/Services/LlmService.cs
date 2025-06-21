@@ -1,13 +1,11 @@
 ﻿using DndTest.Config;
-using DndTest.Helpers.Extensions;
 using System.Text.Json;
 
 namespace DndTest.Services;
 
 public class LlmService(
     IHttpClientFactory httpClientFactory,
-    DndSettings settings,
-    NoteService documentService
+    DndSettings settings
 )
 {
     private static readonly JsonSerializerOptions jsonOptions = new()
