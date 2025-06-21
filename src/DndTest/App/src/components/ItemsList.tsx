@@ -26,7 +26,7 @@ const ItemList = ({ hits }: { hits: Array<SearchHit> }) => {
                         >
                             <ListItemText
                                 primary={hit.name}
-                                secondary={hit.category}
+                                secondary={hit.previewFields.join(" • ")}
                             />
                         </ListItem>
                         {index < hits.length - 1 && <Divider />}

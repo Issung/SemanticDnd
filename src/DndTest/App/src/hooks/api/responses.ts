@@ -26,7 +26,8 @@ export interface DocumentsResponse {
 
 export interface SearchHit {
     name: string;
-    category: Category;
+    /** Fields to show in preview (e.g. list view). */
+    previewFields: Array<string>;
     documentId: number;
     pageNumber: number | undefined;
 }

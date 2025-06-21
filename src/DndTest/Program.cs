@@ -94,6 +94,7 @@ public class Program
 
         builder.Services
             .AddFrontendSpa(settings)
+            .AddScoped<SearchService>()
             .AddScoped<CustomFieldService>()
             .AddScoped<DocumentApi>()
             .AddScoped<EmbeddingsService>()

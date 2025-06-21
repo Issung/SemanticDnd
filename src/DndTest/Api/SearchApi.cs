@@ -5,12 +5,12 @@ using DndTest.Services;
 namespace DndTest.Api;
 
 public class SearchApi(
-    NoteService documentService
+    SearchService searchService
 )
 {
     public async Task<SearchResponse> TradSearch(SearchRequest request)
     {
-        var results = await documentService.TradSearch(request.Query);
+        var results = await searchService.TradSearch(request.Query);
         var hits = results.Select(r => new SearchHit(r));
 
         return new(999, hits);

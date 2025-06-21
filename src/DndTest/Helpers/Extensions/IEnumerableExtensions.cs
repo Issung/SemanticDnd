@@ -2,7 +2,7 @@
 
 public static class IEnumerableExtensions
 {
-    public static string StringJoin<T>(this IEnumerable<T> items, string separator)
+    public static string StringJoin(this IEnumerable<string> items, string separator)
     {
         ArgumentNullException.ThrowIfNull(items);
         ArgumentNullException.ThrowIfNull(separator);
