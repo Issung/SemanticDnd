@@ -36,9 +36,11 @@ div#header {
     z-index: 10;
 
     display: flex;
+    justify-content: space-between; /* 1st element on the left and 2nd on the right. */
     flex-wrap: wrap; /* allows wrapping if needed */
     align-items: center; /* vertically center items inside container */
     padding-left: 10px;
+    padding-right: 10px;
     gap: 10px; /* optional spacing between items */
 
     > * {

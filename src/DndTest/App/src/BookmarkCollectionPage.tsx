@@ -2,8 +2,11 @@ import { useParams } from "@tanstack/react-router";
 import { useBookmarkCollection } from "./hooks/api/useBookmarkCollection";
 import { useBookmarkCollectionItems } from "./hooks/api/useBookmarkCollectionItems";
 import ItemList, { ItemListDisplay } from "./components/ItemsList";
+import { setHeader } from "./components/HeaderContext";
 
 export function BookmarkCollectionPage() {
+    setHeader({back: true});
+
     const { id } = useParams({ strict: false }) // will be typed later with route param
     const {data: collectionData} = useBookmarkCollection(id!);
     const {data: itemsData} = useBookmarkCollectionItems(id!);

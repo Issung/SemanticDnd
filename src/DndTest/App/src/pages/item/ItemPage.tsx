@@ -1,9 +1,13 @@
+import { CustomFields } from '@/components/CustomFields';
+import { setHeader } from '@/components/HeaderContext';
+import { useItem } from '@/hooks/api/useItem';
+import { IconButton } from '@mui/material';
+import { useParams } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { useParams } from '@tanstack/react-router'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CustomFields } from '@/components/CustomFields';
-import { useItem } from '@/hooks/api/useItem';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 export default function ItemPage() {
     const { id } = useParams({ strict: false }) // will be typed later with route param
@@ -11,6 +15,8 @@ export default function ItemPage() {
     const [fileType, setFileType] = useState<null | 'text' | 'image' | 'pdf'>(null);
     const [fileContent, setFileContent] = useState<string | Blob | null>(null);
     const [fileError, setFileError] = useState<string | null>(null);
+
+    setHeader({back: true, adornment: <IconButton><BookmarkBorderIcon/></IconButton>});
 
     useEffect(() => {
         const load = async () => {

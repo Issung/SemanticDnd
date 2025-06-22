@@ -24,6 +24,7 @@ import ItemPage from './pages/item/ItemPage.tsx';
 import SearchPage from './pages/search/SearchPage.tsx';
 import reportWebVitals from './reportWebVitals.ts';
 import './styles.css';
+import { HeaderProvider } from './components/HeaderContext.tsx';
 
 const theme = createTheme({
     palette: {
@@ -36,12 +37,14 @@ const rootRoute = createRootRoute({
         <>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
-                <Header />
-                <Box maxWidth={750} mx="auto" mt={4}>
-                    <div id="content">
-                        <Outlet />
-                    </div>
-                </Box>
+                <HeaderProvider>
+                    <Header />
+                    <Box maxWidth={750} mx="auto" mt={4}>
+                        <div id="content">
+                            <Outlet />
+                        </div>
+                    </Box>
+                </HeaderProvider>
                 <Footer />
                 {/* <TanStackRouterDevtools /> */}
             </ThemeProvider>

@@ -1,14 +1,16 @@
 import { useNavigate } from "@tanstack/react-router";
 import BookmarkCollectionsList from "./components/BookmarkCollectionsList";
+import { setHeader } from "./components/HeaderContext";
 
 export const BookmarkCollectionsPage = () => {
     console.log('BookmarkCollectionsPage');
+
+    setHeader({back: false, title: 'Bookmarks'});
 
     const navigate = useNavigate();
 
     return (
         <>
-            <h1>Bookmarks</h1>
             <BookmarkCollectionsList
                 onSelect={(id) => navigate({
                     to: '/bookmarkCollection/$id',

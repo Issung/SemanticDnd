@@ -5,6 +5,7 @@ import ItemList, { ItemListDisplay } from "@/components/ItemsList";
 import { useSearch } from "@/hooks/api/useSearch";
 import { useDebounce } from "@/hooks/useDebounce"; // Adjust path as needed
 import ClearIcon from '@mui/icons-material/Clear';
+import { setHeader } from "@/components/HeaderContext";
 
 export default function SearchPage() {
     console.log('SearchPage');
@@ -15,6 +16,8 @@ export default function SearchPage() {
     const [inputValue, setInputValue] = useState(routeQuery);
 
     const debouncedInput = useDebounce(inputValue, 200); // Only update after 200ms idle
+
+    setHeader({back: false, title: 'Search'});
 
     // Sync input field with query param (back/forward nav)
     useEffect(() => {
