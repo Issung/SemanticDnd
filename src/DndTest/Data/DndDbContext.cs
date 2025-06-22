@@ -1,7 +1,7 @@
-﻿using DndTest.Data.Model;
+﻿using Amazon.S3.Model;
+using DndTest.Data.Model;
 using DndTest.Data.Model.Content;
 using DndTest.Data.Model.CustomFields;
-using DndTest.Helpers.Extensions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +12,9 @@ public class DndDbContext(
 ) : IdentityDbContext(options)
 {
     public DbSet<Tenant> Tenants { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<BookmarkCollection> BookmarkCollections { get; set; } = null!;
+    public DbSet<Bookmark> Bookmarks { get; set; } = null!;
 
     // Content
     public DbSet<Item> Items { get; set; } = null!;
@@ -45,6 +48,8 @@ public class DndDbContext(
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasPostgresExtension("vector");
+
+        ConfigureBookmarks(builder);
 
         builder
             .Entity<SearchChunk>(searchChunk =>
@@ -84,6 +89,22 @@ public class DndDbContext(
             .Properties<Enum>()
             .HaveConversion<string>()
             .HaveColumnType("VARCHAR(64)"); // Hopefully no enum longer than this.
+    }
+
+    private static void ConfigureBookmarks(ModelBuilder builder)
+    {
+        builder.Entity<Bookmark>()
+            .HasKey(b => new { b.BookmarkCollectionId, b.ItemId });
+
+        builder.Entity<Bookmark>()
+            .HasOne(b => b.BookmarkCollection)
+            .WithMany(c => c.Bookmarks)
+            .HasForeignKey(b => b.BookmarkCollectionId);
+
+        builder.Entity<Bookmark>()
+            .HasOne(b => b.Item)
+            .WithMany(i => i.Bookmarks)
+            .HasForeignKey(b => b.ItemId);
     }
 
     public override void Dispose()

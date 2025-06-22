@@ -23,7 +23,12 @@ public class Item
 
     public Uri? FileAccessUrl { get; set; }
 
-    public IEnumerable<CustomField> CustomFields { get; set; } = default!;
+    /// <summary>
+    /// This item is bookmarked in these collections.
+    /// </summary>
+    public IEnumerable<BookmarkCollectionSummary> BookmarkCollections { get; set; }
+
+    public IEnumerable<CustomField> CustomFields { get; set; }
 
     public Item(Data.Model.Content.Item item)
     {
@@ -33,6 +38,13 @@ public class Item
         CreatedAt = item.CreatedAt;
         UpdatedAt = item.UpdatedAt;
         Text = item is Note note ? note.Content : null;
+        BookmarkCollections = item.Bookmarks
+            .Select(b => b.BookmarkCollection)
+            .Select(bc => new BookmarkCollectionSummary
+            {
+                Id = bc.Id,
+                Name = bc.Name,
+            });
         CustomFields = item.CustomFieldValues.Select(cf => new CustomField
         {
             Id = cf.Id,

@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 namespace DndTest.Services;
 
 public class SearchService(
-    DndDbContext dbContext
+    DndDbContext dbContext,
+    SecurityContext securityContext
 )
 {
     private static readonly string[] stopwords = [
@@ -44,8 +45,8 @@ public class SearchService(
 
         var searchQuery = dbContext.SearchChunks
             .Include(sc => sc.Item)
-            .ThenInclude(i => i.CustomFieldValues.Where(v => includeCustomFieldIds.Contains(v.CustomFieldId)))
-            .ThenInclude(v => v.Values)
+                .ThenInclude(i => i.CustomFieldValues.Where(v => includeCustomFieldIds.Contains(v.CustomFieldId)))  // Only include certain custom fields for search results.
+                .ThenInclude(v => v.Values)
             .Where(sc => !hasTextQuery || sc.TextVector.Matches(EF.Functions.ToTsQuery(textQuery)));
 
         if (hasTextQuery)

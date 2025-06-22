@@ -17,19 +17,42 @@ export interface CustomField {
     values: Array<string>;
 }
 
+export interface BookmarkCollectionsResponse {
+    collections: Array<BookmarkCollectionSummary>;
+}
+
+export interface BookmarkCollectionResponse {
+    bookmarkCollection: BookmarkCollection;
+}
+
+export interface BookmarkCollection {
+    id: number;
+    name: string;
+    description: string;
+}
+
+export interface BookmarkCollectionSummary {
+    id: number;
+    name: string;
+}
+
 export interface ItemResponse {
     item: Item;
 }
 
 export interface ItemsResponse {
-    items: Array<Item>;
+    items: Array<ItemSummary>;
+}
+
+export interface ItemSummary {
+    id: number;
+    name: string;
+    /** Fields to show in previews (e.g. list view). */
+    previewFields: Array<string>;
 }
 
 export interface SearchHit {
-    name: string;
-    /** Fields to show in preview (e.g. list view). */
-    previewFields: Array<string>;
-    itemId: number;
+    item: ItemSummary;
     pageNumber: number | undefined;
 }
 

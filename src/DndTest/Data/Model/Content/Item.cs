@@ -21,4 +21,5 @@ public abstract class Item
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public List<ItemCustomFieldValue> CustomFieldValues { get; set; } = default!;
+    public List<Bookmark> Bookmarks { get; set; } = new();
 }

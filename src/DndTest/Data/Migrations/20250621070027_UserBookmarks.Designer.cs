@@ -3,6 +3,7 @@ using System;
 using DndTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -10,12 +11,14 @@ using Pgvector;
 
 #nullable disable
 
-namespace DndTest.Migrations
+namespace DndTest.Data.Migrations
 {
     [DbContext(typeof(DndDbContext))]
-    partial class DndDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250621070027_UserBookmarks")]
+    partial class UserBookmarks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace DndTest.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Bookmarks");
+                    b.ToTable("Bookmark");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.BookmarkCollection", b =>
@@ -78,7 +81,7 @@ namespace DndTest.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BookmarkCollections");
+                    b.ToTable("BookmarkCollection");
                 });
 
             modelBuilder.Entity("DndTest.Data.Model.Content.Item", b =>
@@ -387,7 +390,7 @@ namespace DndTest.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

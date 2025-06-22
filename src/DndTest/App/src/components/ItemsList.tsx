@@ -1,20 +1,50 @@
-import type { SearchHit } from "@/hooks/api/responses";
+import type { ItemSummary, SearchHit } from "@/hooks/api/responses";
 import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import React from "react";
 
-const ItemList = ({ hits }: { hits: Array<SearchHit> }) => {
+export class ItemListDisplay {
+    constructor(
+        public id: number,
+        public name: string,
+        public previewFields: Array<string>,
+        public pageNumber: number | undefined
+    ) {}
+
+    static fromSummary(item: ItemSummary): ItemListDisplay {
+        return new ItemListDisplay(
+            item.id,
+            item.name,
+            item.previewFields,
+            undefined // No page number in ItemSummary
+        );
+    }
+
+    static fromSearchHit(hit: SearchHit): ItemListDisplay {
+        return new ItemListDisplay(
+            hit.item.id,
+            hit.item.name,
+            hit.item.previewFields,
+            hit.pageNumber
+        );
+    }
+}
+
+
+const ItemList = ({ hits: items }: { hits: Array<ItemListDisplay> }) => {
     const navigate = useNavigate();
 
     return (
         <>
             <List>
-                {hits.map((hit, index) => (
-                    <React.Fragment key={hit.itemId + '-' + hit.pageNumber}>
+                {items.map((item, index) => {
+                    const key = `${item.id}${item.pageNumber ? `-${item.pageNumber}` : ''}`;
+
+                    return <React.Fragment key={key}>
                         <ListItem
                             onClick={() => navigate({
                                 to: '/item/$id',
-                                params: { id: hit.itemId }
+                                params: { id: item.id }  // TODO: Implement page number.
                             })}
                             sx={{
                                 cursor: 'pointer', // Show pointer cursor
@@ -25,13 +55,13 @@ const ItemList = ({ hits }: { hits: Array<SearchHit> }) => {
                             }}
                         >
                             <ListItemText
-                                primary={hit.name}
-                                secondary={hit.previewFields.join(" • ")}
+                                primary={item.name}
+                                secondary={item.previewFields.join(" • ")}
                             />
                         </ListItem>
-                        {index < hits.length - 1 && <Divider />}
+                        {index < items.length - 1 && <Divider />}
                     </React.Fragment>
-                ))}
+                })}
             </List>
         </>
     );

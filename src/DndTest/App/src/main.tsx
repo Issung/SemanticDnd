@@ -14,10 +14,11 @@ import {
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
-import { Bookmarks } from './Bookmarks.tsx';
+import { BookmarkCollectionPage } from './BookmarkCollectionPage.tsx';
+import { BookmarkCollectionsPage } from './BookmarkCollectionsPage.tsx';
 import { Footer } from './components/Footer.tsx';
 import Header from './components/Header.tsx';
-import { Content } from './Content.tsx';
+import { ContentPage } from './ContentPage.tsx';
 import { Home } from './Home.tsx';
 import ItemPage from './pages/item/ItemPage.tsx';
 import SearchPage from './pages/search/SearchPage.tsx';
@@ -78,7 +79,7 @@ const homeRoute = createRoute({
 const contentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/content',
-    component: Content
+    component: ContentPage
 });
 
 const searchRoute = createRoute({
@@ -90,13 +91,33 @@ const searchRoute = createRoute({
     }),
 });
 
-const settingsRoute = createRoute({
+const bookmarkCollectionsRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/bookmarks',
-    component: Bookmarks
+    path: '/bookmarkCollections',
+    component: BookmarkCollectionsPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, itemRoute, homeRoute, contentRoute, settingsRoute, searchRoute])
+const bookmarkCollectionRoute = createRoute({
+    // getParentRoute: () => bookmarkCollectionsRoute,
+    getParentRoute: () => rootRoute,
+    path: '/bookmarkCollection/$id',
+    component: BookmarkCollectionPage,
+    parseParams: ({id}) => {
+        const parsedId = parseInt(id);
+        return {
+            id: isNaN(parsedId) ? (() => { throw new Error()})() : parsedId,
+        };
+    }
+});
+
+const routeTree = rootRoute.addChildren([
+    indexRoute,
+    itemRoute,
+    homeRoute,
+    contentRoute,
+    bookmarkCollectionsRoute, bookmarkCollectionRoute,
+    searchRoute
+])
 
 const router = createRouter({
     routeTree,

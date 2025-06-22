@@ -94,6 +94,8 @@ public class Program
 
         builder.Services
             .AddFrontendSpa(settings)
+            .AddSingleton<SecurityContext>()
+            .AddScoped<BookmarksApi>()
             .AddScoped<SearchService>()
             .AddScoped<CustomFieldService>()
             .AddScoped<ItemApi>()
@@ -158,6 +160,10 @@ public class Program
 
     private static void MapEndpoints(WebApplication app)
     {
+        app.MapGet("/api/bookmarkCollections", ([FromServices] BookmarksApi api) => api.GetAll());
+        app.MapGet("/api/bookmarkCollection/{collectionId:int}", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollection(collectionId));
+        app.MapGet("/api/bookmarkCollection/{collectionId:int}/items", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollectionItems(collectionId));
+
         app.MapGet("/api/items", ([FromServices] ItemApi api) => api.GetAll());
         app.MapGet("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Get(id));
 

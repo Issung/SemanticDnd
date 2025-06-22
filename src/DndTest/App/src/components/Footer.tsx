@@ -14,7 +14,7 @@ export const Footer = () => {
         <ButtonBase onClick={() => navigate({to: '/search', search: { query: "" }})}>
             <SearchIcon htmlColor='white'/>
         </ButtonBase>
-        <ButtonBase onClick={() => navigate({to: '/bookmarks'})}>
+        <ButtonBase onClick={() => navigate({to: '/bookmarkCollections'})}>
             <BookmarksIcon htmlColor='white'/>
         </ButtonBase>
     </div>

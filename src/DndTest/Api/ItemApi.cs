@@ -8,7 +8,8 @@ namespace DndTest.Api;
 
 public class ItemApi(
     DndDbContext dbContext,
-    S3Service s3Service
+    S3Service s3Service,
+    SecurityContext securityContext
 )
 {
     public ItemsResponse GetAll()
@@ -18,7 +19,7 @@ public class ItemApi(
                 .ThenInclude(c => c.CustomField)
             .Include(i => i.CustomFieldValues)
                 .ThenInclude(c => c.Values)
-            .Select(i => new Models.Response.Item(i))
+            .Select(i => new ItemSummary(i))
             .AsAsyncEnumerable();
 
         return new(e);
@@ -32,6 +33,8 @@ public class ItemApi(
                 .ThenInclude(c => c.CustomField)
             .Include(i => i.CustomFieldValues)
                 .ThenInclude(c => c.Values)
+            .Include(i => i.Bookmarks.Where(b => b.BookmarkCollection.UserId == securityContext.UserId))
+                .ThenInclude(b => b.BookmarkCollection)
             .SingleAsync(d => d.Id == id);
 
         var fileUrl = await MaybeGetFileUrl(item);
@@ -39,8 +42,7 @@ public class ItemApi(
         var model = new Models.Response.Item(item)
         {
             FileAccessUrl = fileUrl,
-            
-            Text = item is Note note ? note.Content : null
+            Text = item is Note note ? note.Content : null,
         };
 
         return new(model);
