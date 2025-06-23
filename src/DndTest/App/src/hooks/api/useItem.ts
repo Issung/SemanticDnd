@@ -11,7 +11,7 @@ export function useItem(id: number) {
     }
 
     return useQuery({
-        queryKey: [QueryKeys.items, id],
+        queryKey: QueryKeys.item(id),
         queryFn: async () => {
             const response = await fetch(`${apiBaseUrl}/item/${id}`, {
                 method: 'GET',

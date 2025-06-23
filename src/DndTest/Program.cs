@@ -160,7 +160,8 @@ public class Program
 
     private static void MapEndpoints(WebApplication app)
     {
-        app.MapGet("/api/bookmarkCollections", ([FromServices] BookmarksApi api) => api.GetAll());
+        app.MapPost("/api/bookmarks", ([FromServices] BookmarksApi api, [FromBody] ItemBookmarksRequest request) => api.SetBookmarksForItem(request));
+        app.MapGet("/api/bookmarkCollections", ([FromServices] BookmarksApi api) => api.GetCollections());
         app.MapGet("/api/bookmarkCollection/{collectionId:int}", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollection(collectionId));
         app.MapGet("/api/bookmarkCollection/{collectionId:int}/items", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollectionItems(collectionId));
 

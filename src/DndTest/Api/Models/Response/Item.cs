@@ -24,9 +24,9 @@ public class Item
     public Uri? FileAccessUrl { get; set; }
 
     /// <summary>
-    /// This item is bookmarked in these collections.
+    /// This item is bookmarked in these collections (for the fetching user).
     /// </summary>
-    public IEnumerable<BookmarkCollectionSummary> BookmarkCollections { get; set; }
+    public IEnumerable<int> BookmarkCollectionIds { get; set; }
 
     public IEnumerable<CustomField> CustomFields { get; set; }
 
@@ -38,13 +38,7 @@ public class Item
         CreatedAt = item.CreatedAt;
         UpdatedAt = item.UpdatedAt;
         Text = item is Note note ? note.Content : null;
-        BookmarkCollections = item.Bookmarks
-            .Select(b => b.BookmarkCollection)
-            .Select(bc => new BookmarkCollectionSummary
-            {
-                Id = bc.Id,
-                Name = bc.Name,
-            });
+        BookmarkCollectionIds = item.Bookmarks.Select(b => b.BookmarkCollectionId);
         CustomFields = item.CustomFieldValues.Select(cf => new CustomField
         {
             Id = cf.Id,

@@ -1,12 +1,39 @@
 import { useBookmarkCollections } from "@/hooks/api/useBookmarkCollections";
-import { List, ListItem, ListItemText } from "@mui/material";
+import {
+    Checkbox,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText
+} from "@mui/material";
 
 function BookmarkCollectionsList({
     onSelect,
+    checkboxMode,
 }: {
-    onSelect: (id: number) => void,
+    onSelect?: (id: number) => void,
+    checkboxMode?: {
+        selectedIds: Array<number>,
+        onSelectionChanged: (newSelectedIds: Array<number>) => void,
+    }
 }) {
     const { data } = useBookmarkCollections();
+
+    function toggleCheckbox(id: number) {
+        if (checkboxMode)
+        {
+            if (checkboxMode.selectedIds.includes(id))
+            {
+                const newList = checkboxMode.selectedIds.filter(i => i != id);
+                checkboxMode.onSelectionChanged(newList);
+            }
+            else
+            {
+                const newList = [...checkboxMode.selectedIds, id];
+                checkboxMode.onSelectionChanged(newList);
+            }
+        }
+    }
 
     return (
         <>
@@ -16,25 +43,38 @@ function BookmarkCollectionsList({
                     {data.collections.map((collection, index) => (
                         <ListItem
                             key={collection.id}
-                            onClick={() => onSelect(collection.id)}
                             divider={index < data.collections.length - 1}
+                            secondaryAction={collection.bookmarkCount}
                             sx={{
-                                cursor: 'pointer', // Show pointer cursor
-                                width: '100%', // Ensure full width
+                                cursor: 'pointer',
+                                width: '100%',
                                 '&:hover': {
-                                    backgroundColor: 'action.hover' // Add hover effect
+                                    backgroundColor: 'action.hover'
+                                }
+                            }}
+                            disablePadding  // Fixes div alignment for ripple animation not going over into the secondaryAction area.
+                            onClick={() => {
+                                if (!checkboxMode)
+                                {
+                                    onSelect?.(collection.id);
                                 }
                             }}
                         >
-                            <ListItemText
-                                primary={collection.name}
-                            />
+                            <ListItemButton onClick={() => toggleCheckbox(collection.id)}>
+                                {checkboxMode && (
+                                    <Checkbox
+                                        edge="start"
+                                        checked={checkboxMode.selectedIds.includes(collection.id)}
+                                    />
+                                )}
+                                <ListItemText primary={collection.name} />
+                            </ListItemButton>
                         </ListItem>
                     ))}
                 </List>
             }
         </>
     );
-};
+}
 
 export default BookmarkCollectionsList;

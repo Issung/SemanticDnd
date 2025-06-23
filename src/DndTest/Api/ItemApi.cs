@@ -34,7 +34,6 @@ public class ItemApi(
             .Include(i => i.CustomFieldValues)
                 .ThenInclude(c => c.Values)
             .Include(i => i.Bookmarks.Where(b => b.BookmarkCollection.UserId == securityContext.UserId))
-                .ThenInclude(b => b.BookmarkCollection)
             .SingleAsync(d => d.Id == id);
 
         var fileUrl = await MaybeGetFileUrl(item);

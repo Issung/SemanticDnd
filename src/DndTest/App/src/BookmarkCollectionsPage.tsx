@@ -5,7 +5,7 @@ import { setHeader } from "./components/HeaderContext";
 export const BookmarkCollectionsPage = () => {
     console.log('BookmarkCollectionsPage');
 
-    setHeader({back: false, title: 'Bookmarks'});
+    setHeader({back: false, title: 'Bookmark Collections'});
 
     const navigate = useNavigate();
 

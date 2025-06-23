@@ -5,6 +5,7 @@ export interface Item {
     name: string;
     category: Category;
     createdAt: string; // comes as ISO string
+    bookmarkCollectionIds: Array<number>;
     customFields: Array<CustomField>;
     text: string | undefined;
     fileAccessUrl: string | undefined;
@@ -34,6 +35,7 @@ export interface BookmarkCollection {
 export interface BookmarkCollectionSummary {
     id: number;
     name: string;
+    bookmarkCount: number;
 }
 
 export interface ItemResponse {

@@ -9,6 +9,7 @@ export default function Header() {
     const headerConfig = useHeaderConfig();
     
     return <div id="header">
+        {/* Left */}
         <div>
             {headerConfig.back && <Button size="small" variant="contained" color="primary" onClick={() => history.back()} startIcon={<ArrowBackIcon />}>Back</Button>}
             {headerConfig.title &&
@@ -17,6 +18,7 @@ export default function Header() {
                 </h1>
             }
         </div>
+        {/* Right */}
         <div>
             {headerConfig.adornment}
         </div>

@@ -13,12 +13,12 @@ const SetHeaderConfigContext = createContext<(config: HeaderConfig) => void>(() 
 export const useHeaderConfig = () => useContext(HeaderConfigContext);
 export const useSetHeaderConfig = () => useContext(SetHeaderConfigContext);
 
-export function setHeader(newConfig: HeaderConfig) {
+export function setHeader(newConfig: HeaderConfig, deps?: React.DependencyList) {
     const setHeaderConfig = useSetHeaderConfig();
 
     return useEffect(() => {
         setHeaderConfig(newConfig);
-    }, []);
+    }, deps);
 }
 
 export const HeaderProvider = ({ children }: { children: ReactNode }) => {

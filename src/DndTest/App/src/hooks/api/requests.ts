@@ -4,3 +4,8 @@ export interface SearchRequest {
     query: string | undefined;
     category: Category | undefined;
 }
+
+export interface ItemBookmarksRequest {
+    itemId: number;
+    bookmarkCollectionIds: Array<number>;
+}

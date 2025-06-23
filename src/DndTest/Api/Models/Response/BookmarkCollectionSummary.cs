@@ -8,4 +8,6 @@ public class BookmarkCollectionSummary
     public int Id { get; set; }
 
     public string Name { get; set; } = default!;
+
+    public int BookmarkCount { get; set; }
 }
