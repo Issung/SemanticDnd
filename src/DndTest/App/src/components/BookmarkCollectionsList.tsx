@@ -1,6 +1,9 @@
+import type { BookmarkCollectionSummary } from "@/hooks/api/responses";
 import { useBookmarkCollections } from "@/hooks/api/useBookmarkCollections";
+import EditIcon from '@mui/icons-material/Edit';
 import {
     Checkbox,
+    IconButton,
     List,
     ListItem,
     ListItemButton,
@@ -9,9 +12,11 @@ import {
 
 function BookmarkCollectionsList({
     onSelect,
+    onEdit,
     checkboxMode,
 }: {
     onSelect?: (id: number) => void,
+    onEdit?: (collection: BookmarkCollectionSummary) => void,
     checkboxMode?: {
         selectedIds: Array<number>,
         onSelectionChanged: (newSelectedIds: Array<number>) => void,
@@ -44,7 +49,16 @@ function BookmarkCollectionsList({
                         <ListItem
                             key={collection.id}
                             divider={index < data.collections.length - 1}
-                            secondaryAction={<span>{collection.bookmarkCount}</span>}
+                            secondaryAction={
+                                <>
+                                    <span>{collection.bookmarkCount}</span>
+                                    {onEdit && (
+                                        <IconButton onClick={() => onEdit(collection)}>
+                                            <EditIcon />
+                                        </IconButton>
+                                    )}
+                                </>
+                            }
                             sx={{
                                 cursor: 'pointer',
                                 width: '100%',

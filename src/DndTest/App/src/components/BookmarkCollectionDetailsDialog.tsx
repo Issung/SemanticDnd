@@ -1,23 +1,21 @@
+import type { BookmarkCollectionPutRequest } from "@/hooks/api/requests";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { useState } from "react";
-import { useCreateBookmarkCollection } from "../hooks/api/useCreateBookmarkCollection";
-import type { BookmarkCollection } from "../hooks/api/responses";
+import { useBookmarkCollectionPut } from "../hooks/api/useBookmarkCollectionPut";
 
 export interface BookmarkCollectionDetailsDialogProps {
-    bookmarkCollection?: BookmarkCollection;
+    open: boolean;
+    bookmarkCollection: BookmarkCollectionPutRequest;
     onClose: () => void;
 }
 
 export function BookmarkCollectionDetailsDialog(props: BookmarkCollectionDetailsDialogProps) {
-    const [name, setName] = useState(props.bookmarkCollection?.name || "");
-    const [description, setDescription] = useState(props.bookmarkCollection?.description || "");
-    const createMutation = useCreateBookmarkCollection();
+    const putBookmarkCollection = useBookmarkCollectionPut();
+    const [bookmarkCollection, setBookmarkCollection] = useState(props.bookmarkCollection);
+    const isEdit = Boolean(props.bookmarkCollection.id);
 
     const handleSave = async () => {
-        await createMutation.mutateAsync({
-            name: name,
-            description: description || undefined,
-        });
+        await putBookmarkCollection.mutateAsync(bookmarkCollection);
         props.onClose();
     };
 
@@ -25,9 +23,9 @@ export function BookmarkCollectionDetailsDialog(props: BookmarkCollectionDetails
         <Dialog
             fullWidth
             onClose={props.onClose}
-            open={true}
+            open={props.open}
         >
-            <DialogTitle>{props.bookmarkCollection ? "Edit Bookmark Collection" : "Create New Bookmark Collection"}</DialogTitle>
+            <DialogTitle>{isEdit ? "Edit Bookmark Collection" : "Create Bookmark Collection"}</DialogTitle>
 
             <DialogContent>
                 <TextField
@@ -38,8 +36,8 @@ export function BookmarkCollectionDetailsDialog(props: BookmarkCollectionDetails
                     type="text"
                     fullWidth
                     variant="standard"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={bookmarkCollection.name}
+                    onChange={(e) => setBookmarkCollection({...bookmarkCollection, name: e.target.value})}
                 />
                 <TextField
                     margin="dense"
@@ -48,16 +46,16 @@ export function BookmarkCollectionDetailsDialog(props: BookmarkCollectionDetails
                     type="text"
                     fullWidth
                     multiline
-                    rows={4}
+                    rows={3}
                     variant="standard"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={bookmarkCollection.description}
+                    onChange={(e) => setBookmarkCollection({...bookmarkCollection, description: e.target.value})}
                 />
             </DialogContent>
 
             <DialogActions>
                 <Button onClick={props.onClose}>Cancel</Button>
-                <Button onClick={handleSave} variant="contained" color="primary">Save</Button>
+                <Button onClick={handleSave} variant="contained" color="primary">{isEdit ? "Save" : "Create"}</Button>
             </DialogActions>
         </Dialog>
     );

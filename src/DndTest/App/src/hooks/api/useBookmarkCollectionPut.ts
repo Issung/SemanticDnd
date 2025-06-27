@@ -1,17 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateBookmarkCollectionRequest } from "./requests";
-import type { BookmarkCollectionResponse } from "./responses";
-import { QueryKeys } from "./queryKeys";
 import { useConfigContext } from "../configContext";
+import type { BookmarkCollectionPutRequest } from "./requests";
+import { QueryKeys } from "./queryKeys";
 
-export function useCreateBookmarkCollection() {
+export function useBookmarkCollectionPut() {
     const queryClient = useQueryClient();
     const { apiBaseUrl } = useConfigContext();
 
     return useMutation({
-        mutationFn: async (request: CreateBookmarkCollectionRequest) => {
+        mutationFn: async (request: BookmarkCollectionPutRequest) => {
             const response = await fetch(`${apiBaseUrl}/bookmarkCollection`, {
-                method: "POST",
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -19,13 +18,14 @@ export function useCreateBookmarkCollection() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to create bookmark collection");
+                throw new Error("Failed to update bookmark collection");
             }
-
-            return response.json() as Promise<BookmarkCollectionResponse>;
         },
-        onSuccess: () => {
+        onSuccess: (d, v, c) => {
             queryClient.invalidateQueries({ queryKey: [QueryKeys.bookmarkCollections] });
+            if (v.id) {
+                queryClient.invalidateQueries({ queryKey: [QueryKeys.bookmarkCollections, v.id] });
+            }
         },
     });
 }

@@ -7,7 +7,7 @@ export function useBookmarkCollection(collectionId: number) {
     const { apiBaseUrl } = useConfigContext();
     
     return useQuery({
-        queryKey: [QueryKeys.bookmarkCollectionItems, collectionId],
+        queryKey: [QueryKeys.bookmarkCollections, collectionId],
         queryFn: async () => {
             const response = await fetch(`${apiBaseUrl}/bookmarkCollection/${collectionId}`, {
                 method: 'GET',

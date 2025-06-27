@@ -163,7 +163,7 @@ public class Program
         // Bookmarks / Bookmark Collections
         app.MapPost("/api/bookmarks", ([FromServices] BookmarksApi api, [FromBody] ItemBookmarksRequest request) => api.SetBookmarksForItem(request));
         app.MapGet("/api/bookmarkCollections", ([FromServices] BookmarksApi api) => api.GetCollections());
-        app.MapPost("/api/bookmarkCollection", ([FromServices] BookmarksApi api, [FromBody] CreateBookmarkCollectionRequest request) => api.CreateBookmarkCollection(request));
+        app.MapPut("/api/bookmarkCollection", ([FromServices] BookmarksApi api, [FromBody] BookmarkCollectionPutRequest request) => api.PutBookmarkCollection(request));
         app.MapGet("/api/bookmarkCollection/{collectionId:int}", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollection(collectionId));
         app.MapGet("/api/bookmarkCollection/{collectionId:int}/items", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollectionItems(collectionId));
 

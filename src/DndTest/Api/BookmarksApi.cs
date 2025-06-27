@@ -2,6 +2,7 @@
 using DndTest.Api.Models.Response;
 using DndTest.Data;
 using DndTest.Data.Model;
+using DndTest.Exceptions;
 using DndTest.Helpers.Extensions;
 using DndTest.Services;
 using Microsoft.EntityFrameworkCore;
@@ -103,26 +104,31 @@ public class BookmarksApi(
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<BookmarkCollectionResponse> CreateBookmarkCollection(CreateBookmarkCollectionRequest request)
+    /// <summary>
+    /// Create or update a bookmark collection.
+    /// </summary>
+    public async Task PutBookmarkCollection(BookmarkCollectionPutRequest request)
     {
-        var bookmarkCollection = new Data.Model.BookmarkCollection
-        {
-            Name = request.Name,
-            Description = request.Description,
-            UserId = securityContext.UserId,
-        };
+        var bookmarkCollection = request.Id != null
+            ? await GetCollectionOrNotFound(request.Id.Value)
+            : new Data.Model.BookmarkCollection() { UserId = securityContext.UserId };
 
-        dbContext.BookmarkCollections.Add(bookmarkCollection);
+        bookmarkCollection.Name = request.Name;
+        bookmarkCollection.Description = request.Description;
+
+        if (request.Id == null)
+        {
+            dbContext.BookmarkCollections.Add(bookmarkCollection);
+        }
+
         await dbContext.SaveChangesAsync();
+    }
 
-        return new()
-        {
-            BookmarkCollection = new()
-            {
-                Id = bookmarkCollection.Id,
-                Name = bookmarkCollection.Name,
-                Description = bookmarkCollection.Description,
-            }
-        };
+    private async Task<Data.Model.BookmarkCollection> GetCollectionOrNotFound(int id)
+    {
+        return await dbContext.BookmarkCollections
+            .Where(bc => bc.UserId == securityContext.UserId)
+            .Where(bc => bc.Id == id)
+            .SingleOrDefaultAsync() ?? throw new NotFoundException();
     }
 }

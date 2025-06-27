@@ -8,3 +8,4 @@ It uses:
 * MUI.
 
 Do not run any linting or pretty formatting tools. Refer to existing code for examples or types. For example QueryKeys or context used in hooks.
+API endpoints are defined in Program.cs MapEndpoints() method, which call through to one of the *Api classes.

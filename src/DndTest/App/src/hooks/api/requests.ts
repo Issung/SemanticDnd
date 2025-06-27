@@ -1,4 +1,5 @@
 import type { Category } from "./common";
+import type { BookmarkCollection } from "./responses";
 
 export interface SearchRequest {
     query: string | undefined;
@@ -13,4 +14,9 @@ export interface ItemBookmarksRequest {
 export interface CreateBookmarkCollectionRequest {
     name: string;
     description?: string;
+}
+
+export interface BookmarkCollectionPutRequest extends Omit<BookmarkCollection, 'id'>{
+    /** Undefined = create new collection. Set = update existing. */
+    id?: number | undefined;
 }

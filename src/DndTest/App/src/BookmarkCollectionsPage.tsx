@@ -30,13 +30,12 @@ export const BookmarkCollectionsPage = () => {
                     to: '/bookmarkCollection/$id',
                     params: { id: id}
                 })}
-            >
-            </BookmarkCollectionsList>
-            {showCreateDialog && (
-                <BookmarkCollectionDetailsDialog
-                    onClose={() => setShowCreateDialog(false)}
-                />
-            )}
+            />
+            <BookmarkCollectionDetailsDialog
+                open={showCreateDialog}
+                bookmarkCollection={{name: '', description: ''}}
+                onClose={() => setShowCreateDialog(false)}
+            />
         </>
     );
 }
