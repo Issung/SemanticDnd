@@ -102,4 +102,27 @@ public class BookmarksApi(
 
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task<BookmarkCollectionResponse> CreateBookmarkCollection(CreateBookmarkCollectionRequest request)
+    {
+        var bookmarkCollection = new Data.Model.BookmarkCollection
+        {
+            Name = request.Name,
+            Description = request.Description,
+            UserId = securityContext.UserId,
+        };
+
+        dbContext.BookmarkCollections.Add(bookmarkCollection);
+        await dbContext.SaveChangesAsync();
+
+        return new()
+        {
+            BookmarkCollection = new()
+            {
+                Id = bookmarkCollection.Id,
+                Name = bookmarkCollection.Name,
+                Description = bookmarkCollection.Description,
+            }
+        };
+    }
 }

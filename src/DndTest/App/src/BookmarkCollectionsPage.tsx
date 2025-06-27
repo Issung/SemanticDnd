@@ -1,11 +1,25 @@
+import AddIcon from '@mui/icons-material/Add';
+import { IconButton } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { BookmarkCollectionDetailsDialog } from "./components/BookmarkCollectionDetailsDialog";
 import BookmarkCollectionsList from "./components/BookmarkCollectionsList";
 import { setHeader } from "./components/HeaderContext";
 
 export const BookmarkCollectionsPage = () => {
     console.log('BookmarkCollectionsPage');
 
-    setHeader({back: false, title: 'Bookmark Collections'});
+    const [showCreateDialog, setShowCreateDialog] = useState(false);
+
+    setHeader({
+        back: false,
+        title: 'Bookmark Collections',
+        adornment: (
+            <IconButton onClick={() => setShowCreateDialog(true)}>
+                <AddIcon/>
+            </IconButton>
+        ),
+    });
 
     const navigate = useNavigate();
 
@@ -18,6 +32,11 @@ export const BookmarkCollectionsPage = () => {
                 })}
             >
             </BookmarkCollectionsList>
+            {showCreateDialog && (
+                <BookmarkCollectionDetailsDialog
+                    onClose={() => setShowCreateDialog(false)}
+                />
+            )}
         </>
     );
 }

@@ -44,7 +44,7 @@ function BookmarkCollectionsList({
                         <ListItem
                             key={collection.id}
                             divider={index < data.collections.length - 1}
-                            secondaryAction={collection.bookmarkCount}
+                            secondaryAction={<span>{collection.bookmarkCount}</span>}
                             sx={{
                                 cursor: 'pointer',
                                 width: '100%',
