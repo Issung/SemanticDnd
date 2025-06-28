@@ -18,7 +18,7 @@ export function useBookmarkCollectionPut() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to update bookmark collection");
+                throw new Error("Failed to put bookmark collection.");
             }
         },
         onSuccess: (d, v, c) => {

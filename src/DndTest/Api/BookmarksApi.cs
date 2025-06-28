@@ -124,6 +124,13 @@ public class BookmarksApi(
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task DeleteBookmarkCollection(int collectionId)
+    {
+        var bookmarkCollection = await GetCollectionOrNotFound(collectionId);
+        dbContext.BookmarkCollections.Remove(bookmarkCollection);
+        await dbContext.SaveChangesAsync();
+    }
+
     private async Task<Data.Model.BookmarkCollection> GetCollectionOrNotFound(int id)
     {
         return await dbContext.BookmarkCollections

@@ -166,6 +166,7 @@ public class Program
         app.MapPut("/api/bookmarkCollection", ([FromServices] BookmarksApi api, [FromBody] BookmarkCollectionPutRequest request) => api.PutBookmarkCollection(request));
         app.MapGet("/api/bookmarkCollection/{collectionId:int}", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollection(collectionId));
         app.MapGet("/api/bookmarkCollection/{collectionId:int}/items", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollectionItems(collectionId));
+        app.MapDelete("/api/bookmarkCollection/{collectionId:int}", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.DeleteBookmarkCollection(collectionId));
 
         app.MapGet("/api/items", ([FromServices] ItemApi api) => api.GetAll());
         app.MapGet("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Get(id));
