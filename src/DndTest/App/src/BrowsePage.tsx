@@ -5,12 +5,14 @@ import { browseRoute } from "./main";
 
 export default function BrowsePage() {
     console.log('BrowsePage');
-
-    setHeader({ back: false, title: 'Content' });
-
+    
     const { folderId } = browseRoute.useParams();
-
     const { data, isPending, isError } = useBrowse(folderId);
+
+    setHeader({
+        back: Boolean(folderId),    // If within a folder, then display back button.
+        title: 'Content',    // TODO: Browse response should probably include folder name, and maybe parent folder name for back button? To display in header.
+    });
 
     return (
         isPending ? "Loading..." :

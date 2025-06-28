@@ -3,7 +3,9 @@ using DndTest.Data.Model.Content;
 using DndTest.Data.Model.CustomFields;
 using DndTest.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace DataLoader;
 
@@ -22,8 +24,46 @@ TRUNCATE TABLE "SearchChunks" RESTART IDENTITY CASCADE;
 
     static async Task Main(string[] args)
     {
-        return; // Data already loaded.
 
+        return; // Don't run this stuff that's already been done.
+
+        await MoveSpellsToFolders();
+        await LoadSpells();
+    }
+
+    private static async Task MoveSpellsToFolders()
+    {
+        await DndTest.Program.Main2(async app =>
+        {
+            var scope = app.Services.CreateScope();
+
+            var dbContext = scope.ServiceProvider.GetRequiredService<DndDbContext>();
+
+            const int wizardCfValueId = 4;
+            const int priestCfValueId = 5;
+
+            const int wizFolder = 927;
+            const int priestFolder = 928;
+
+            //var items = await dbContext.Items
+            //    .Where(i => i.CustomFieldValues.Any(cf => cf.CustomFieldId == 2 && cf.Values.Any(v => v.Id == wizardCfValueId)))
+            //    .ToArrayAsync();
+            //
+            //Debug.WriteLine("Wait");
+
+            // Wiz
+            await dbContext.Items
+                .Where(i => i.CustomFieldValues.Any(cf => cf.CustomFieldId == 2 && cf.Values.Any(v => v.Id == wizardCfValueId)))
+                .ExecuteUpdateAsync(_ => _.SetProperty(i => i.ParentId, wizFolder));
+
+            await dbContext.Items
+                .Where(i => i.CustomFieldValues.Any(cf => cf.CustomFieldId == 2 && cf.Values.Any(v => v.Id == priestCfValueId)))
+                .ExecuteUpdateAsync(_ => _.SetProperty(i => i.ParentId, priestFolder));
+        });
+    }
+
+    private static async Task LoadSpells()
+    {
         var priestData = System.Text.Json.JsonSerializer.Deserialize<SpellData>(System.IO.File.ReadAllText("Priest.list.json"))!;
         var wizardData = System.Text.Json.JsonSerializer.Deserialize<SpellData>(System.IO.File.ReadAllText("Wizard.list.json"))!;
 
@@ -44,7 +84,7 @@ TRUNCATE TABLE "SearchChunks" RESTART IDENTITY CASCADE;
         };
 
         var wizard = new CustomFieldOption { Name = "Wizard" };
-        var priest= new CustomFieldOption { Name = "Priest" };
+        var priest = new CustomFieldOption { Name = "Priest" };
 
         var classCf = new CustomField()
         {

@@ -3,7 +3,11 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 interface HeaderConfig {
     title?: string;
-    back?: boolean;
+    
+    /** Display back button in header. */
+    back?: boolean; // TODO: Probably need the ability to define where this back button goes to in some cases.
+
+    /** Item(s) on the end (right) of the header. */
     adornment?: React.ReactNode;
 }
 
