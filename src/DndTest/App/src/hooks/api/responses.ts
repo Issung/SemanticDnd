@@ -1,5 +1,13 @@
 import type { Category } from "./common";
 
+export enum ItemType
+{
+    File = "File",
+    Folder = "Folder",
+    Note = "Note",
+    Shortcut = "Shortcut",
+}
+
 export interface Item {
     id: number;
     name: string;
@@ -43,12 +51,14 @@ export interface ItemResponse {
 }
 
 export interface ItemsResponse {
+    count: number;
     items: Array<ItemSummary>;
 }
 
 export interface ItemSummary {
     id: number;
     name: string;
+    type: ItemType;
     /** Fields to show in previews (e.g. list view). */
     previewFields: Array<string>;
 }

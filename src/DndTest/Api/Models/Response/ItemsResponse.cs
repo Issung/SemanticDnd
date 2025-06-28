@@ -1,3 +1,3 @@
 ﻿namespace DndTest.Api.Models.Response;
 
-public record ItemsResponse(IAsyncEnumerable<ItemSummary> Items);
+public record ItemsResponse(int Count, IAsyncEnumerable<ItemSummary> Items);

@@ -1,15 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useConfigContext } from "../configContext";
 import { QueryKeys } from "./queryKeys";
-import type { ItemsResponse } from "./responses";
+import type { ItemsResponse as ItemsResponse } from "./responses";
 
-export function useItems() {
+export function useBrowse(folderId: number | undefined) {
     const { apiBaseUrl } = useConfigContext();
     
+    if (folderId === 0) {
+        folderId = undefined;
+    }
+
     return useQuery({
-        queryKey: [QueryKeys.items],
+        queryKey: [QueryKeys.browse, folderId],
         queryFn: async () => {
-            const response = await fetch(`${apiBaseUrl}/items`, {
+            const response = await fetch(`${apiBaseUrl}/browse/${folderId ?? ''}`, {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json'
@@ -17,7 +21,7 @@ export function useItems() {
             })
             
             if (!response.ok) {
-                throw new Error(`Failed to fetch items: ${response.status}`);
+                throw new Error(`Browse request failed: ${response.status}.`);
             }
 
             const data: ItemsResponse = await response.json();

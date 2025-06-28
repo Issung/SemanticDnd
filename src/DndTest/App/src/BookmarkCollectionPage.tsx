@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useBookmarkCollection } from "./hooks/api/useBookmarkCollection";
 import { useBookmarkCollectionItems } from "./hooks/api/useBookmarkCollectionItems";
-import ItemList, { ItemListDisplay } from "./components/ItemsList";
+import ItemList, { ItemListDisplayAdapter } from "./components/ItemsList";
 import { setHeader } from "./components/HeaderContext";
 import { IconButton } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
@@ -34,7 +34,7 @@ export function BookmarkCollectionPage() {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const navigate = useNavigate();
 
-    const items = itemsData?.items.map(ItemListDisplay.fromSummary);
+    const items = itemsData?.items.map(ItemListDisplayAdapter.fromSummary);
 
     return (
         <>

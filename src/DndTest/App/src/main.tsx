@@ -18,13 +18,13 @@ import { BookmarkCollectionPage } from './BookmarkCollectionPage.tsx';
 import { BookmarkCollectionsPage } from './BookmarkCollectionsPage.tsx';
 import { Footer } from './components/Footer.tsx';
 import Header from './components/Header.tsx';
-import { ContentPage } from './ContentPage.tsx';
+import { HeaderProvider } from './components/HeaderContext.tsx';
 import { Home } from './Home.tsx';
 import ItemPage from './pages/item/ItemPage.tsx';
 import SearchPage from './pages/search/SearchPage.tsx';
 import reportWebVitals from './reportWebVitals.ts';
 import './styles.css';
-import { HeaderProvider } from './components/HeaderContext.tsx';
+import BrowsePage from './BrowsePage.tsx';
 
 const theme = createTheme({
     palette: {
@@ -79,10 +79,20 @@ const homeRoute = createRoute({
     component: Home
 });
 
-const contentRoute = createRoute({
+export const browseRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/content',
-    component: ContentPage
+    path: '/browse/$folderId',
+    component: BrowsePage,
+    params: {
+        parse: ({ folderId }) => {
+            const parsedId = parseInt(folderId);
+            if (isNaN(parsedId)) {
+                throw new Error('Invalid folderId');
+            }
+
+            return { folderId: parsedId };
+        },
+    },
 });
 
 const searchRoute = createRoute({
@@ -117,7 +127,7 @@ const routeTree = rootRoute.addChildren([
     indexRoute,
     itemRoute,
     homeRoute,
-    contentRoute,
+    browseRoute,
     bookmarkCollectionsRoute, bookmarkCollectionRoute,
     searchRoute
 ])

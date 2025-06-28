@@ -50,17 +50,21 @@ public class BookmarksApi(
         };
     }
 
-    public ItemsResponse GetBookmarkCollectionItems(int collectionId)
+    public async Task<ItemsResponse> GetBookmarkCollectionItems(int collectionId)
     {
-        var items = dbContext.BookmarkCollections
+        var query = dbContext.BookmarkCollections
             .Where(bc => bc.Id == collectionId && bc.UserId == securityContext.UserId)
-            .SelectMany(bc => bc.Bookmarks.Select(b => b.Item))
+            .SelectMany(bc => bc.Bookmarks.Select(b => b.Item));
+
+        var count = await query.CountAsync();
+        
+        var items = query
             .Include(i => i.CustomFieldValues)  // TODO: Includes all instead of just the ones we want.
                 .ThenInclude(v => v.Values)
             .Select(i => new ItemSummary(i))
             .AsAsyncEnumerable();
 
-        return new(items);
+        return new(count, items);
     }
 
     // TODO: Need a bookmark collection limit so a user can't send a request with a million collection ids.
@@ -136,6 +140,6 @@ public class BookmarksApi(
         return await dbContext.BookmarkCollections
             .Where(bc => bc.UserId == securityContext.UserId)
             .Where(bc => bc.Id == id)
-            .SingleOrDefaultAsync() ?? throw new NotFoundException();
+            .SingleOrDefaultAsync() ?? throw new NotFoundException($"Bookmark collection {id} not found.");
     }
 }

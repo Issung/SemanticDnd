@@ -2,14 +2,6 @@
 
 namespace DndTest.Api.Models.Response;
 
-public enum ItemType
-{
-    File,
-    Folder,
-    Note,
-    Shortcut,
-}
-
 public class Item
 {
     public int Id { get; set; }

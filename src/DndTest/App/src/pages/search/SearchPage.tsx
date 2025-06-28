@@ -1,7 +1,7 @@
 import { IconButton, Input, InputAdornment } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearch as useRouteSearch } from "@tanstack/react-router";
-import ItemList, { ItemListDisplay } from "@/components/ItemsList";
+import ItemList, { ItemListDisplayAdapter } from "@/components/ItemsList";
 import { useSearch } from "@/hooks/api/useSearch";
 import { useDebounce } from "@/hooks/useDebounce"; // Adjust path as needed
 import ClearIcon from '@mui/icons-material/Clear';
@@ -31,7 +31,7 @@ export default function SearchPage() {
 
     const { data, isPending, isError } = useSearch({ query: routeQuery, category: undefined });
 
-    const hits = data?.hits.map(ItemListDisplay.fromSearchHit);
+    const hits = data?.hits.map(ItemListDisplayAdapter.fromSearchHit);
 
     return (
         <div>
