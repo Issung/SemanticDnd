@@ -19,7 +19,7 @@ export function useBookmarkCollectionDelete(onSuccess?: () => Promise<void> | vo
                 throw new Error("Failed to delete bookmark collection.");
             }
         },
-        onSuccess: async (d, collectionId, c) => {
+        onSuccess: async (_d, collectionId, _c) => {
             // Must `await` navigation away first before invalidating queries, so the collection that
             // was just deleted we don't try to refetch the query that was just deleted.
 

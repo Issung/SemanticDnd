@@ -8,7 +8,7 @@ export default function Header() {
     const { history } = useRouter()
     const headerConfig = useHeaderConfig();
     
-    return <div id="header">
+    return <div id="Header">
         {/* Left */}
         <div>
             {headerConfig.back && <Button size="small" variant="contained" color="primary" onClick={() => history.back()} startIcon={<ArrowBackIcon />}>Back</Button>}
@@ -19,7 +19,7 @@ export default function Header() {
             }
         </div>
         {/* Right */}
-        <div>
+        <div id="Header__Adornment">
             {headerConfig.adornment}
         </div>
     </div>

@@ -24,7 +24,7 @@ div#content {
     padding-right: 10px;
 }
 
-div#header {
+div#Header {
     border-bottom: 1px solid grey;
     position: fixed;
     top: 0;
@@ -42,6 +42,15 @@ div#header {
     padding-left: 10px;
     padding-right: 10px;
     gap: 10px; /* optional spacing between items */
+
+    h1 {
+        overflow: hidden;
+        text-wrap-mode: nowrap;
+    }
+
+    #Header__Adornment {
+        overflow: clip;
+    }
 
     > * {
         display: flex;

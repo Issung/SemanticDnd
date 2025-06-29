@@ -20,3 +20,26 @@ export interface BookmarkCollectionPutRequest extends Omit<BookmarkCollection, '
     /** Undefined = create new collection. Set = update existing. */
     id?: number | undefined;
 }
+
+export interface ItemPutRequest {
+    name: string;
+    description: string;
+    parentId?: number;
+}
+
+export interface FilePutRequest extends ItemPutRequest {
+    // No additional fields for files yet.
+}
+
+export interface FolderPutRequest extends ItemPutRequest {
+    // No additional fields for folders yet.
+}
+
+export interface NotePutRequest extends ItemPutRequest {
+    content: string;
+}
+
+export interface ShortcutPutRequest extends ItemPutRequest {
+    targetId: number;
+    pageNumber?: number;
+}

@@ -72,3 +72,13 @@ export interface SearchResponse {
     totalCount: number;
     hits: Array<SearchHit>;
 }
+
+export interface BrowseResponse {
+    /** In the case of browsing root this will be undefined but there truly will be no parent. */
+    parentId: number | undefined;
+    folderId: number | undefined;
+    folderName: string;
+    folderDescription: string;
+    itemCount: number;
+    items: Array<ItemSummary>;
+}

@@ -35,7 +35,7 @@ export function BookmarkCollectionDetailsDialog(props: BookmarkCollectionDetails
                     label="Name"
                     type="text"
                     fullWidth
-                    variant="standard"
+                    variant="outlined"
                     value={bookmarkCollection.name}
                     onChange={(e) => setBookmarkCollection({...bookmarkCollection, name: e.target.value})}
                 />
@@ -47,7 +47,7 @@ export function BookmarkCollectionDetailsDialog(props: BookmarkCollectionDetails
                     fullWidth
                     multiline
                     rows={3}
-                    variant="standard"
+                    variant="outlined"
                     value={bookmarkCollection.description}
                     onChange={(e) => setBookmarkCollection({...bookmarkCollection, description: e.target.value})}
                 />

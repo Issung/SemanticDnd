@@ -3,6 +3,7 @@ using DndTest.Api;
 using DndTest.Api.Models.Request;
 using DndTest.Config;
 using DndTest.Data;
+using DndTest.Data.Repositories;
 using DndTest.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -94,20 +95,27 @@ public class Program
 
         builder.Services
             .AddFrontendSpa(settings)
-            .AddSingleton<SecurityContext>()
+            // Apis
             .AddScoped<BookmarksApi>()
+            .AddScoped<ItemApi>()
+            .AddScoped<SearchApi>()
+
+            // Repos
+            .AddScoped<ItemAppRepository>()
+
+            // ???
+            .AddSingleton<SecurityContext>()
             .AddScoped<SearchService>()
             .AddScoped<CustomFieldService>()
-            .AddScoped<ItemApi>()
             .AddScoped<EmbeddingsService>()
             .AddSingleton<IAmazonS3>(s3Client)
             .AddSingleton<S3Service>()
-            .AddScoped<SearchApi>()
             .AddScoped<NoteService>()
             .AddScoped<FileService>()
             .AddScoped<TikaService>()
             .AddScoped<LlmService>()
             .AddSingleton<SseTestService>()
+            .AddSingleton<TimeProvider>(TimeProvider.System)
         ;
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -171,6 +179,13 @@ public class Program
         // Browse & Items.
         app.MapGet("/api/browse/{folderId:int?}", ([FromServices] ItemApi api, int? folderId) => api.Browse(folderId));
         app.MapGet("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Get(id));
+
+        app.MapPut("/api/item/file/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] FilePutRequest request) => api.PutFile(id, request));
+        app.MapPut("/api/item/folder/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] FolderPutRequest request) => api.PutFolder(id, request));
+        app.MapPut("/api/item/note/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] NotePutRequest request) => api.PutNote(id, request));
+        app.MapPut("/api/item/shortcut/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] ShortcutPutRequest request) => api.PutShortcut(id, request));
+        
+        app.MapDelete("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Delete(id));
 
         app.MapPost("/api/tradsearch", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.TradSearch(request));
         //app.MapPost("/api/search", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.HybridSearch(request));
