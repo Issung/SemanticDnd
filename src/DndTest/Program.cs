@@ -176,17 +176,21 @@ public class Program
         app.MapGet("/api/bookmarkCollection/{collectionId:int}/items", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.GetBookmarkCollectionItems(collectionId));
         app.MapDelete("/api/bookmarkCollection/{collectionId:int}", ([FromServices] BookmarksApi api, [FromRoute] int collectionId) => api.DeleteBookmarkCollection(collectionId));
 
-        // Browse & Items.
+        // Browse & Items
         app.MapGet("/api/browse/{folderId:int?}", ([FromServices] ItemApi api, int? folderId) => api.Browse(folderId));
         app.MapGet("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Get(id));
 
-        app.MapPut("/api/item/file/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] FilePutRequest request) => api.PutFile(id, request));
+        app.MapPut("/api/item/file/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromForm] FilePutRequest request, IFormFile? file) => api.PutFile(id, request, file)).DisableAntiforgery();
         app.MapPut("/api/item/folder/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] FolderPutRequest request) => api.PutFolder(id, request));
         app.MapPut("/api/item/note/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] NotePutRequest request) => api.PutNote(id, request));
         app.MapPut("/api/item/shortcut/{id:int?}", ([FromServices] ItemApi api, [FromRoute] int? id, [FromBody] ShortcutPutRequest request) => api.PutShortcut(id, request));
         
         app.MapDelete("/api/item/{id:int}", ([FromServices] ItemApi api, [FromRoute] int id) => api.Delete(id));
 
+        // Config / Custom Fields
+        app.MapGet("/api/customFields", ([FromServices] CustomFieldApi api) => api.GetAll());
+
+        // Search
         app.MapPost("/api/tradsearch", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.TradSearch(request));
         //app.MapPost("/api/search", ([FromServices] SearchApi api, [FromBody] SearchRequest request) => api.HybridSearch(request));
 

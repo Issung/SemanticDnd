@@ -23,6 +23,7 @@ import Navigations from './Navigations';
 export default function BrowsePage() {
     const rawParams = browseRoute.useParams();
     const folderId = rawParams.folderId === 0 ? undefined : rawParams.folderId;
+    const navigate = useNavigate();
 
     const { data, isPending, isError } = useBrowse(folderId);
 
@@ -36,6 +37,9 @@ export default function BrowsePage() {
     function createItem(type: ItemType) {
         if (type === ItemType.Folder) {
             setFolderCreateDialogOpen(true);
+        }
+        else if (type === ItemType.File) {
+            navigate({to: '/create/file'});
         }
         else {
             alert('Not implemented yet.');

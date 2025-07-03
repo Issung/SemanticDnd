@@ -25,6 +25,7 @@ import SearchPage from './pages/search/SearchPage.tsx';
 import reportWebVitals from './reportWebVitals.ts';
 import './styles.css';
 import BrowsePage from './BrowsePage.tsx';
+import CreateFilePage from './pages/CreateFilePage.tsx';
 
 const theme = createTheme({
     palette: {
@@ -123,13 +124,20 @@ const bookmarkCollectionRoute = createRoute({
     }
 });
 
+const createFileRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/create/file',
+    component: CreateFilePage,
+});
+
 const routeTree = rootRoute.addChildren([
     indexRoute,
     itemRoute,
     homeRoute,
     browseRoute,
     bookmarkCollectionsRoute, bookmarkCollectionRoute,
-    searchRoute
+    searchRoute,
+    createFileRoute
 ])
 
 const router = createRouter({

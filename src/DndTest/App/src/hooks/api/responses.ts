@@ -1,7 +1,30 @@
 import type { Category } from "./common";
 
-export enum ItemType
-{
+export enum CustomFieldType {
+    FreeText = "FreeText",
+
+    SingleChoice = "SingleChoice",
+    MultiChoice = "MultiChoice",
+
+    /**
+     * Can pick from other existing entries or just enter your own value.
+     */
+    SingleValue = "SingleValue",
+
+    /**
+     * Multiple free text entries (e.g. Tags).
+     * I think this should work like Multi-Choice but the UI will be different,
+     * and any user can add options not just the admin.
+     */
+    MultiValue = "MultiValue",
+
+    Integer = "Integer",
+    Decimal = "Decimal",
+    Date = "Date",
+    Boolean = "Boolean",
+}
+
+export enum ItemType {
     File = "File",
     Folder = "Folder",
     Note = "Note",
@@ -14,16 +37,17 @@ export interface Item {
     category: Category;
     createdAt: string; // comes as ISO string
     bookmarkCollectionIds: Array<number>;
-    customFields: Array<CustomField>;
+    customFields: Array<ItemCustomField>;
     text: string | undefined;
     fileAccessUrl: string | undefined;
 }
 
-export interface CustomField {
-    id: number;
+export interface ItemCustomField {
+    // id: number;
     name: string;
     valueInteger: number | undefined;
-    values: Array<string>;
+    // TODO: Other value types.
+    values: Array<string> | undefined;
 }
 
 export interface BookmarkCollectionsResponse {
@@ -81,4 +105,27 @@ export interface BrowseResponse {
     folderDescription: string;
     itemCount: number;
     items: Array<ItemSummary>;
+}
+
+export interface CustomFieldsResponse {
+  customFields: Array<CustomField>;
+}
+
+export interface CustomField {
+  id: number;
+  name: string;
+  type: CustomFieldType; // You may want to decouple this from DB-level enum
+  valueInteger?: number;
+  options?: Array<CustomFieldOption>;
+  conditions?: Array<CustomFieldCondition>;
+}
+
+export interface CustomFieldOption {
+  id: number;
+  name: string;
+}
+
+export interface CustomFieldCondition {
+  dependsOnCustomFieldId: number;
+  requiredOptionIds: Array<number>;
 }

@@ -1,13 +1,46 @@
-﻿using Amazon.Auth.AccessControlPolicy;
+﻿using DndTest.Api.Models.Response;
 using DndTest.Data;
+using DndTest.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace DndTest.Api;
 
 public class CustomFieldApi(
+    SecurityContext securityContext,
     DndDbContext dbContext
 )
 {
+    public async Task<CustomFieldsResponse> GetAll()
+    {
+        var customFields = await dbContext.CustomFields
+            .Where(cf => cf.TenantId == securityContext.TenancyId)
+            .Include(cf => cf.Options)
+            .Include(cf => cf.Conditions)
+            .ThenInclude(c => c.RequiredOptions)
+            .AsSplitQuery() // TODO: Probably better. Benchmark it. Well really this functionality will eventually be split up into multiple APIs.
+            .ToArrayAsync();
+
+        return new()
+        {
+            CustomFields = customFields.Select(cf => new CustomFieldsResponse.CustomField()
+            {
+                Id = cf.Id,
+                Name = cf.Name,
+                Type = cf.Type,
+                Options = cf.Options.Select(o => new CustomFieldsResponse.CustomFieldOption()
+                {
+                    Id = o.Id,
+                    Name = o.Name
+                }),
+                Conditions = cf.Conditions.Select(c => new CustomFieldsResponse.CustomFieldCondition()
+                {
+                    RequiredOptionIds = c.RequiredOptions.Select(ro => ro.Id),
+                    DependsOnCustomFieldId = c.DependsOnCustomFieldId,
+                })
+            })
+        };
+    }
+
     public async Task<object> GetCustomFieldSummaries()
     {
         return await dbContext.CustomFields

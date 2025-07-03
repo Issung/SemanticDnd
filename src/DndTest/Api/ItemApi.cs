@@ -6,6 +6,7 @@ using DndTest.Data.Repositories;
 using DndTest.Exceptions;
 using DndTest.Services;
 using Microsoft.EntityFrameworkCore;
+using File = DndTest.Data.Model.Content.File;
 
 namespace DndTest.Api;
 
@@ -43,6 +44,7 @@ public class ItemApi(
             .OrderByDescending(i => i is Folder)    // Place folders at top.
             .ThenBy(i => i.Name)
             .Select(i => new ItemSummary(i))
+            //.AsSplitQuery()   // Does improve performance by like 50-65%.
             .AsAsyncEnumerable();
 
         return new BrowseResponse(
@@ -78,7 +80,51 @@ public class ItemApi(
         return new(model);
     }
 
-    public async Task PutFile(int? id, FilePutRequest request) => throw new NotImplementedException();
+    public async Task<int> PutFile(int? id, FilePutRequest request, IFormFile? binary)
+    {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+
+        File file;
+        if (id.HasValue)
+        {
+            file = await GetItemOfType<File>(id.Value);
+        }
+        else
+        {
+            file = new File { CreatedAt = now };
+            dbContext.Files.Add(file);
+        }
+
+        if (request.ParentId.HasValue)
+        {
+            await ValidateParentId(request.ParentId);
+        }
+
+        if (binary != null)
+        {
+            file.S3ObjectKey = Guid.NewGuid().ToString();
+            file.ContentType = binary.ContentType;
+            file.SizeBytes = binary.Length;
+            file.FileHash = "fakehash" + Guid.NewGuid().ToString();
+            await s3Service.Put(file.S3ObjectKey, binary.OpenReadStream(), binary.ContentType);
+        }
+
+        if (id.HasValue && file.ParentId != request.ParentId)
+        {
+            await ValidateParentId(request.ParentId);
+        }
+
+        file.Name = request.Name;
+        file.Description = request.Description;
+        file.UpdatedAt = now;
+        file.TenantId = securityContext.TenancyId;
+        file.ParentId = request.ParentId;
+
+        await dbContext.SaveChangesAsync();
+
+        return file.Id;
+    }
+
     public async Task PutNote(int? id, NotePutRequest request) => throw new NotImplementedException();
     public async Task PutShortcut(int? id, ShortcutPutRequest request) => throw new NotImplementedException();
 
@@ -172,6 +218,7 @@ public class ItemApi(
             throw new BadRequestException($"ParentId ({id}) must be a positive integer.");
         }
 
+        // Also verifies that it is within this tenancy.
         var item = await itemRepo.GetItem(id.Value);
 
         if (item is not Folder)

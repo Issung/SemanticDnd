@@ -20,7 +20,7 @@ public class Item
     /// </summary>
     public IEnumerable<int> BookmarkCollectionIds { get; set; }
 
-    public IEnumerable<CustomField> CustomFields { get; set; }
+    public IEnumerable<ItemCustomField> CustomFields { get; set; }
 
     public Item(Data.Model.Content.Item item)
     {
@@ -31,9 +31,9 @@ public class Item
         UpdatedAt = item.UpdatedAt;
         Text = item is Note note ? note.Content : null;
         BookmarkCollectionIds = item.Bookmarks.Select(b => b.BookmarkCollectionId);
-        CustomFields = item.CustomFieldValues.Select(cf => new CustomField
+        CustomFields = item.CustomFieldValues.Select(cf => new ItemCustomField
         {
-            Id = cf.Id,
+            //Id = cf.Id,
             Name = cf.CustomField.Name,
             ValueInteger = cf.ValueInteger,
             Values = cf.Values.Select(v => v.Name),

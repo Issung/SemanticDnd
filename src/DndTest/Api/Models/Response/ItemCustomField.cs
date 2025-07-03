@@ -1,8 +1,12 @@
 ﻿namespace DndTest.Api.Models.Response;
 
-public class CustomField
+/// <summary>
+/// A basic view of a custom field just for display with an item.
+/// </summary>
+public class ItemCustomField
 {
-    public required int Id { get; set; }
+    //public required int Id { get; set; }  // Not needed just for display really.
+
     public required string Name { get; set; }
 
     // TODO: Implement other custom field types.

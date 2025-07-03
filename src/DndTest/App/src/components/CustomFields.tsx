@@ -1,4 +1,4 @@
-import type { CustomField as CustomFieldModel } from "@/hooks/api/responses";
+import type { ItemCustomField as CustomFieldModel } from "@/hooks/api/responses";
 
 export function CustomFields({fields}: {fields: Array<CustomFieldModel>}) {
     return (
