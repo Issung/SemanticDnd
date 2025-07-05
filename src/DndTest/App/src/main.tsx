@@ -159,8 +159,13 @@ declare module '@tanstack/react-router' {
 const rootElement = document.getElementById('app')
 const queryClient = new QueryClient()
 
-if (rootElement && !rootElement.innerHTML)
+// The `!rootElement.innerHTML` check is not enough, this method runs twice for some reason(!!) and 
+// Causes everything to be setup twice, causing tonnes of re-rendering...
+// Had to add an extra check of our own dataset property.
+// Only hunch at the moment for this file (main.tsx) running twice is something to do with hot reload, possibly mixed with YARP proxying, as it doesn't seem to occur when serving the built app.
+if (rootElement && !rootElement.innerHTML && rootElement.dataset.setupDone === undefined)
 {
+    console.warn('Setting up root...');
     const root = ReactDOM.createRoot(rootElement)
     root.render(
         <StrictMode>
@@ -169,6 +174,8 @@ if (rootElement && !rootElement.innerHTML)
             </QueryClientProvider>
         </StrictMode>,
     )
+
+    rootElement.dataset.setupDone = 'true';
 }
 
 // If you want to start measuring performance in your app, pass a function

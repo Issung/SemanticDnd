@@ -8,8 +8,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { setHeader } from "@/components/HeaderContext";
 
 export default function SearchPage() {
-    console.log('SearchPage');
-
     const { query: routeQuery } = useRouteSearch({ from: "/search" });
     const navigate = useNavigate({ from: "/search" });
 
@@ -33,6 +31,7 @@ export default function SearchPage() {
 
     const hits = data?.hits.map(ItemListDisplayAdapter.fromSearchHit);
 
+    console.log('SearchPage', routeQuery, data, isPending, isError);
     return (
         <div>
             <Input

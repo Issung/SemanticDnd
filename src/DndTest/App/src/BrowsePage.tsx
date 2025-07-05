@@ -55,7 +55,7 @@ export default function BrowsePage() {
         adornment: adornment,
     }, [folderId, data, adornment]);
 
-    console.log('BrowsePage', folderId);
+    console.log('BrowsePage', folderId, data, isPending, isError);
     return (
         <>
             {isPending && <CircularProgress />}

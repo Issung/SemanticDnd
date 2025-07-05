@@ -7,10 +7,8 @@ import BookmarkCollectionsList from "./components/BookmarkCollectionsList";
 import { setHeader } from "./components/HeaderContext";
 
 export const BookmarkCollectionsPage = () => {
-    console.log('BookmarkCollectionsPage');
-
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-
+    
     setHeader({
         back: false,
         title: 'Bookmark Collections',
@@ -20,9 +18,10 @@ export const BookmarkCollectionsPage = () => {
             </IconButton>
         ),
     });
-
+    
     const navigate = useNavigate();
-
+    
+    console.log('BookmarkCollectionsPage');
     return (
         <>
             <BookmarkCollectionsList
