@@ -91,7 +91,7 @@ function HeaderAdornment(props: {
     const [addMenuAnchor, setAddMenuAnchor] = useState<null | HTMLElement>(null);
 
     async function onDeleteSuccess() {
-        await navigate(Navigations.browse(props.browseResponse?.parentId));
+        await navigate(Navigations.browse(props.browseResponse?.parentId, { replace: true }));
         setDeleteDialogOpen(false);
     }
 
@@ -117,7 +117,7 @@ function HeaderAdornment(props: {
                 message={<>Are you sure you want to delete folder <i>{props.browseResponse.folderName}</i>? All content within will also be deleted.</>}
                 onConfirm={() => {
                     if (props.browseResponse?.folderId) {
-                        deleteFolder(props.browseResponse.folderId);
+                        deleteFolder({id: props.browseResponse.folderId, parentId: props.browseResponse.parentId });
                     }
                 }}
                 onCancel={() => setDeleteDialogOpen(false)}

@@ -5,6 +5,8 @@ namespace DndTest.Api.Models.Response;
 public class Item
 {
     public int Id { get; set; }
+
+    public int? ParentId { get; set; }
     public string Name { get; set; } = default!;
     public string Description { get; set; } = default!;
 
@@ -25,6 +27,7 @@ public class Item
     public Item(Data.Model.Content.Item item)
     {
         Id = item.Id;
+        ParentId = item.ParentId;
         Name = item.Name;
         Description = item.Description;
         CreatedAt = item.CreatedAt;

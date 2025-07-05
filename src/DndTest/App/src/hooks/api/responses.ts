@@ -33,6 +33,7 @@ export enum ItemType {
 
 export interface Item {
     id: number;
+    parentId: number | undefined;
     name: string;
     category: Category;
     createdAt: string; // comes as ISO string
