@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useConfigContext } from "../configContext";
 import { QueryKeys } from "./queryKeys";
-import type { BookmarkCollectionResponse } from "./responses";
+import type { CustomFieldsResponse } from "./responses";
 
 export default function useCustomFields() {
     const { apiBaseUrl } = useConfigContext();

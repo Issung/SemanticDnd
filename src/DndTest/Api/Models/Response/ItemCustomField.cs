@@ -5,7 +5,7 @@
 /// </summary>
 public class ItemCustomField
 {
-    //public required int Id { get; set; }  // Not needed just for display really.
+    public required int Id { get; set; }  // Not needed just for display really.
 
     public required string Name { get; set; }
 

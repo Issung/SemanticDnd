@@ -14,7 +14,7 @@ function CustomField({field}: {field: CustomFieldModel}) {
     return (
         <tr className="CustomField">
             <td style={{paddingRight: 30}}>{field.name}</td>
-            <td>{field.valueInteger ?? field.values.join(', ')}</td>
+            <td>{field.valueInteger ?? field.values?.join(', ') ?? '-'}</td>
         </tr>
     );
 }

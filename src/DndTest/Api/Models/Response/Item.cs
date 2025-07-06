@@ -36,7 +36,7 @@ public class Item
         BookmarkCollectionIds = item.Bookmarks.Select(b => b.BookmarkCollectionId);
         CustomFields = item.CustomFieldValues.Select(cf => new ItemCustomField
         {
-            //Id = cf.Id,
+            Id = cf.Id,
             Name = cf.CustomField.Name,
             ValueInteger = cf.ValueInteger,
             Values = cf.Values.Select(v => v.Name),

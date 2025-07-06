@@ -45,7 +45,6 @@ public class Program
         };
 
         builder.Services.AddSingleton(settings);
-
         builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
         //var dbConnection = new NpgsqlConnection(connectionString) {  };

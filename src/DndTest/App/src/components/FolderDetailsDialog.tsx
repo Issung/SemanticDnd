@@ -25,12 +25,13 @@ export default function FolderDetailsDialog(props: FolderDetailsDialogProps) {
         props.onClose(details);
     };
 
-    console.log('FolderDetailsDialog', props.details, details);
+    // console.log('FolderDetailsDialog', props.details, details);
     return (
         <Dialog
             fullWidth
             onClose={cancel}
             open={props.open}
+            disableScrollLock
         >
             <DialogTitle>{props.mode === "create" ? "Create Folder" : "Edit Folder"}</DialogTitle>
 

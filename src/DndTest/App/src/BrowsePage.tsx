@@ -23,16 +23,46 @@ import Navigations from './Navigations';
 export default function BrowsePage() {
     const rawParams = browseRoute.useParams();
     const folderId = rawParams.folderId === 0 ? undefined : rawParams.folderId;
-    const navigate = useNavigate();
-
     const { data, isPending, isError } = useBrowse(folderId);
 
     // TODO: Maybe this stuff should be within HeaderAdornment.
-    const { mutate: folderPut } = useFolderPut();
+    
+    // Memoize adornment to prevent re-render of the full page every time adornment is interacted with.
+    const adornment = useMemo(() => <BrowseHeaderAdornment browseResponse={data} />, [data]);
+
+    setHeader({
+        // TODO: Possibly API returns parent folder name for back button? To display in header.
+        // TODO: BrowseResponse now contains folderId. It should be used here for more accurate UX.
+        // TODO: Maybe we should expose options to customize the button (E.g. say "up" and change icon).
+        back: Boolean(folderId),    // If within a folder, then display back button.
+        title: data?.folderName ?? 'Loading...',
+        adornment: adornment,
+    }, [folderId, data, adornment]);
+
+    console.log('BrowsePage', { folderId, data, isPending, isError });
+    return (
+        <>
+            {isPending && <CircularProgress />}
+            {isError && <span><ErrorIcon /> Something went wrong...</span>}
+            {!isPending && !isError &&
+                <>
+                    <ItemList hits={data.items.map(ItemListDisplayAdapter.fromSummary)} />
+                </>}
+        </>
+    );
+}
+
+function BrowseHeaderAdornment(props: {
+    browseResponse: BrowseResponse | undefined;
+}) {
+    const navigate = useNavigate();
+
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [addMenuAnchor, setAddMenuAnchor] = useState<null | HTMLElement>(null);
     const [folderCreateDialogOpen, setFolderCreateDialogOpen] = useState(false);
 
-    // Memoize adornment to prevent re-render of the full page every time adornment is interacted with.
-    const adornment = useMemo(() => <HeaderAdornment browseResponse={data} create={createItem} />, [folderId, data]);
+    const { mutate: deleteFolder } = useItemDelete(onDeleteSuccess);
+    const { mutate: folderPut } = useFolderPut();
 
     function createItem(type: ItemType) {
         if (type === ItemType.Folder) {
@@ -44,51 +74,9 @@ export default function BrowsePage() {
         else {
             alert('Not implemented yet.');
         }
+
+        setAddMenuAnchor(null);
     }
-
-    setHeader({
-        // TODO: Possibly API returns parent folder name for back button? To display in header.
-        // TODO: BrowseResponse now contains folderId. It should be used here for more accurate UX.
-        // TODO: Maybe we should expose options to customize the button (E.g. say "up" and change icon).
-        back: Boolean(folderId),    // If within a folder, then display back button.
-        title: data?.folderName ?? 'Loading...',
-        adornment: adornment,
-    }, [folderId, data, adornment]);
-
-    console.log('BrowsePage', folderId, data, isPending, isError);
-    return (
-        <>
-            {isPending && <CircularProgress />}
-            {isError && <span><ErrorIcon /> Something went wrong...</span>}
-            {!isPending && !isError &&
-                <>
-                    <ItemList hits={data.items.map(ItemListDisplayAdapter.fromSummary)} />
-
-                    <FolderDetailsDialog
-                        mode="create"
-                        details={{ parentId: folderId, name: '', description: '' }}
-                        open={folderCreateDialogOpen}
-                        onClose={(details) => {
-                            if (details) {
-                                folderPut({ id: undefined, request: details })
-                            }
-
-                            setFolderCreateDialogOpen(false);
-                        }}
-                    />
-                </>}
-        </>
-    );
-}
-
-function HeaderAdornment(props: {
-    browseResponse: BrowseResponse | undefined;
-    create: (type: ItemType) => void;
-}) {
-    const navigate = useNavigate();
-    const { mutate: deleteFolder } = useItemDelete(onDeleteSuccess);
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [addMenuAnchor, setAddMenuAnchor] = useState<null | HTMLElement>(null);
 
     async function onDeleteSuccess() {
         await navigate(Navigations.browse(props.browseResponse?.parentId, { replace: true }));
@@ -127,7 +115,7 @@ function HeaderAdornment(props: {
                 anchorEl={addMenuAnchor}
                 open={Boolean(addMenuAnchor)}
                 onClose={() => setAddMenuAnchor(null)}
-                disableScrollLock   // Locking scroll (hidig scrollbar) causes slight resize.. bad UX.
+                disableScrollLock   // Locking scroll (hiding scrollbar) causes slight resize.. bad UX.
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left',
@@ -137,23 +125,36 @@ function HeaderAdornment(props: {
                     horizontal: 'left',
                 }}
             >
-                <MenuItem onClick={() => props.create(ItemType.Note)}>
+                <MenuItem onClick={() => createItem(ItemType.Note)}>
                     <ListItemIcon><NoteIcon fontSize="small" /></ListItemIcon>
                     <ListItemText primary="Note" />
                 </MenuItem>
-                <MenuItem onClick={() => props.create(ItemType.File)}>
+                <MenuItem onClick={() => createItem(ItemType.File)}>
                     <ListItemIcon><InsertDriveFileIcon fontSize="small" /></ListItemIcon>
                     <ListItemText primary="File" />
                 </MenuItem>
-                <MenuItem onClick={() => props.create(ItemType.Shortcut)}>
+                <MenuItem onClick={() => createItem(ItemType.Shortcut)}>
                     <ListItemIcon><FileOpenIcon fontSize="small" /></ListItemIcon>
                     <ListItemText primary="Shortcut" />
                 </MenuItem>
-                <MenuItem onClick={() => props.create(ItemType.Folder)}>
+                <MenuItem onClick={() => createItem(ItemType.Folder)}>
                     <ListItemIcon><FolderIcon fontSize="small" /></ListItemIcon>
                     <ListItemText primary="Folder" />
                 </MenuItem>
             </Menu>
+
+            <FolderDetailsDialog
+                mode="create"
+                details={{ parentId: props.browseResponse.parentId, name: '', description: '' }}
+                open={folderCreateDialogOpen}
+                onClose={(details) => {
+                    if (details) {
+                        folderPut({ id: undefined, request: details })
+                    }
+
+                    setFolderCreateDialogOpen(false);
+                }}
+            />
         </>
         }
     </>

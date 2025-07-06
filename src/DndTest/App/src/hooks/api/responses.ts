@@ -44,7 +44,7 @@ export interface Item {
 }
 
 export interface ItemCustomField {
-    // id: number;
+    id: number;
     name: string;
     valueInteger: number | undefined;
     // TODO: Other value types.

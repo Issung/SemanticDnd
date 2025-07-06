@@ -8,6 +8,7 @@ export default function Header() {
     const { history } = useRouter()
     const headerConfig = useHeaderConfig();
     
+    console.log('Header', headerConfig);
     return <div id="Header">
         {/* Left */}
         <div>
