@@ -22,6 +22,10 @@ export default function useFolderPut() {
             }
         },
         onSuccess: (_d, params, _c) => {
+            if (params.id) {
+                // We could use `setQueryData` to update the query stored instead of invalidating & refetching. 
+                queryClient.invalidateQueries({ queryKey: QueryKeys.browse(params.id) });
+            }
             queryClient.invalidateQueries({ queryKey: QueryKeys.browse(params.request.parentId) });
         },
     });

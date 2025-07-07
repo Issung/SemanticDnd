@@ -1,12 +1,14 @@
 import FileUpload from '@/components/FileUpload';
 import { setHeader } from '@/components/HeaderContext';
 import { useItemPut } from '@/hooks/api/useItemPut';
+import { createFileRoute } from '@/main';
 import SaveIcon from '@mui/icons-material/Save';
 import { IconButton, Stack, TextField } from '@mui/material';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 
 export default function CreateFilePage() {
+    const { parentId } = createFileRoute.useSearch();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [file, setFile] = useState<File | null>(null);
@@ -14,11 +16,14 @@ export default function CreateFilePage() {
     const navigate = useNavigate();
 
     const valid = name.trim().length > 0 && file;
-
-    const handleSave = () => {
-        if (!valid) return;
-
+    
+    function handleSave() {
+        if (!valid) {
+            return;
+        }
+        
         mutate({
+            parentId,
             name,
             description,
             file,
@@ -27,20 +32,22 @@ export default function CreateFilePage() {
                 navigate({  // TODO: Add to `Navigations` class.
                     to: '/item/$id',
                     params: { id },
+                    replace: true,
                 });
             },
         });
     };
-
+    
     setHeader({
         title: 'Create File',
         back: true,
         adornment:
-            <IconButton onClick={handleSave} disabled={!valid || isPending}>
+            <IconButton onClick={handleSave} disabled={!valid} loading={isPending}>
                 <SaveIcon />
             </IconButton>
-    }, [valid, isPending, name, description, file]);
-
+    }, [valid, isPending]);
+    
+    console.log('CreateFilePage', { parentId, name, description });
     return <>
         <div>
             <Stack gap={2}>

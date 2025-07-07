@@ -136,10 +136,7 @@ public class ItemApi(
             ? await GetItemOfType<Folder>(id.Value)
             : new Folder() { CreatedAt = now };
 
-        if (id.HasValue && folder.ParentId != request.ParentId)
-        {
-            await ValidateParentId(request.ParentId);
-        }
+        await ValidateParentId(request.ParentId);
 
         folder.Name = request.Name;
         folder.Description = request.Description;

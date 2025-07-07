@@ -22,9 +22,9 @@ export interface BookmarkCollectionPutRequest extends Omit<BookmarkCollection, '
 }
 
 export interface ItemPutRequest {
+    parentId?: number;
     name: string;
     description: string;
-    parentId?: number;
 }
 
 export interface FilePutRequest extends ItemPutRequest {

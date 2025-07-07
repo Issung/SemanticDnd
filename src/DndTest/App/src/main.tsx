@@ -124,10 +124,13 @@ const bookmarkCollectionRoute = createRoute({
     }
 });
 
-const createFileRoute = createRoute({
+export const createFileRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/create/file',
     component: CreateFilePage,
+    validateSearch: (search) => ({
+        parentId: typeof search.parentId === 'number' ? search.parentId : undefined,
+    }),
 });
 
 const routeTree = rootRoute.addChildren([

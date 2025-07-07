@@ -1,5 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import ErrorIcon from '@mui/icons-material/Error';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -46,6 +47,7 @@ export default function BrowsePage() {
             {isError && <span><ErrorIcon /> Something went wrong...</span>}
             {!isPending && !isError &&
                 <>
+                    <p>{data.folderDescription}</p>
                     <ItemList hits={data.items.map(ItemListDisplayAdapter.fromSummary)} />
                 </>}
         </>
@@ -59,17 +61,22 @@ function BrowseHeaderAdornment(props: {
 
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [addMenuAnchor, setAddMenuAnchor] = useState<null | HTMLElement>(null);
-    const [folderCreateDialogOpen, setFolderCreateDialogOpen] = useState(false);
+    const [folderDialogMode, setFolderDialogMode] = useState<"create" | "edit" | null>(null);
 
-    const { mutate: deleteFolder } = useItemDelete(onDeleteSuccess);
-    const { mutate: folderPut } = useFolderPut();
+    const { mutate: deleteFolder, isPending: deletePending } = useItemDelete(onDeleteSuccess);
+    const { mutate: folderPut, isPending: folderPutPending } = useFolderPut();
+    const anythingPending = deletePending || folderPutPending;
 
     function createItem(type: ItemType) {
+        if (!props.browseResponse) {
+            return;
+        }
+
         if (type === ItemType.Folder) {
-            setFolderCreateDialogOpen(true);
+            setFolderDialogMode("edit");
         }
         else if (type === ItemType.File) {
-            navigate({to: '/create/file'});
+            navigate({to: '/create/file', search: { parentId: props.browseResponse.folderId }});
         }
         else {
             alert('Not implemented yet.');
@@ -85,17 +92,20 @@ function BrowseHeaderAdornment(props: {
 
     return <>
         {props.browseResponse && <>
+            <IconButton onClick={() => setFolderDialogMode("edit")} disabled={anythingPending} loading={folderPutPending}>
+                <EditIcon/>
+            </IconButton>
+
+            <IconButton onClick={(e) => setAddMenuAnchor(e.currentTarget)} disabled={anythingPending}>
+                <AddIcon />
+            </IconButton>
+
+            {/* Can't delete root. */}
             {props.browseResponse.folderId &&
-                <IconButton onClick={() => setDeleteDialogOpen(true)}>
+                <IconButton onClick={() => setDeleteDialogOpen(true)} disabled={anythingPending} loading={deletePending}>
                     <DeleteOutlineIcon />
                 </IconButton>
             }
-
-            {/* TODO: Implement edit, using the same folder dialog and put mutation. */}
-
-            <IconButton onClick={(e) => setAddMenuAnchor(e.currentTarget)}>
-                <AddIcon />
-            </IconButton>
 
             <ConfirmDialog
                 open={deleteDialogOpen}
@@ -144,15 +154,22 @@ function BrowseHeaderAdornment(props: {
             </Menu>
 
             <FolderDetailsDialog
-                mode="create"
-                details={{ parentId: props.browseResponse.parentId, name: '', description: '' }}
-                open={folderCreateDialogOpen}
+                open={Boolean(folderDialogMode)}
+                mode={folderDialogMode ?? "create"} // Just satisfy the type restraint if not open.
+                details={{
+                    parentId: props.browseResponse.parentId,
+                    name: folderDialogMode == "create" ? '' : props.browseResponse.folderName,
+                    description: folderDialogMode == "create" ? '' : props.browseResponse.folderDescription,
+                }}
                 onClose={(details) => {
-                    if (details) {
-                        folderPut({ id: undefined, request: details })
+                    if (details && props.browseResponse) {
+                        folderPut({
+                            id: folderDialogMode == "create" ? undefined : props.browseResponse.folderId,
+                            request: details
+                        })
                     }
 
-                    setFolderCreateDialogOpen(false);
+                    setFolderDialogMode(null);
                 }}
             />
         </>

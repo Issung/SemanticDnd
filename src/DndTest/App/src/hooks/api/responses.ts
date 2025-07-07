@@ -35,6 +35,7 @@ export interface Item {
     id: number;
     parentId: number | undefined;
     name: string;
+    description: string;
     category: Category;
     createdAt: string; // comes as ISO string
     bookmarkCollectionIds: Array<number>;

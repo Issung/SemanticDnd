@@ -67,6 +67,7 @@ export default function ItemPage() {
         load();
     }, [data?.item.fileAccessUrl]);
 
+    // TODO: Disable all fields while `isPending` (save is in progress).
     return <>
         <div>
             {isPending && <p>Loading...</p>}
@@ -74,6 +75,7 @@ export default function ItemPage() {
             {data && (
                 <div>
                     <h1>{data.item.name}</h1>
+                    <p>{data.item.description}</p>
                     <CustomFields fields={data.item.customFields} />
                     {data.item.text && <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.item.text}</ReactMarkdown>}
                     {data.item.fileAccessUrl && (
